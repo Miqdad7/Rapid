@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Course List{% endblock %}
+{% block header %}Courses{% endblock %}
+
+{% block content %}
+<h2>Available Courses</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Credits</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for course in courses %}
+        <tr>
+            <td>{{ course.course_title }}</td>
+            <td>{{ course.department_id }}</td>
+            <td>{{ course.credit }}</td>
+            <td>
+                <a href="/rapid/edit-course/{{ course.id }}">Edit</a>
+                <a href="/rapid/delete-course/{{ course.id }}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No courses available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}Teacher List{% endblock %}
+{% block header %}Teachers{% endblock %}
+
+{% block content %}
+<h2>Teachers</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Department</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for teacher in teachers %}
+        <tr>
+            <td>{{ teacher.name }}</td>
+            <td>{{ teacher.department }}</td>
+            <td>{{ teacher.email }}</td>
+            <td>
+                <a href="/rapid/edit-teacher/{{ teacher.id }}">Edit</a>
+                <a href="/rapid/delete-teacher/{{ teacher.id }}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No teachers available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

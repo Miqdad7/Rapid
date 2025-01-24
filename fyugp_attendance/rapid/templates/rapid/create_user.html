@@ -1,0 +1,20 @@
+<!-- templates/create_user.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create User</title>
+</head>
+<body>
+    <h2>Create New User</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save User</button>
+    </form>
+    <br>
+    <a href="{% url 'user_list' %}">Back to User List</a>
+</body>
+</html>

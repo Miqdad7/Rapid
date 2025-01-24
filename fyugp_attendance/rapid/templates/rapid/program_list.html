@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Program List{% endblock %}
+{% block header %}Programs{% endblock %}
+
+{% block content %}
+<h2>Available Programs</h2>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Level</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for program in programs %}
+        <tr>
+            <td>{{ program.name }}</td>
+            <td>{{ program.level }}</td>
+            <td>
+                <a href="/rapid/edit-program/{{ program.id }}">Edit</a>
+                <a href="/rapid/delete-program/{{ program.id }}">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3">No programs available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
