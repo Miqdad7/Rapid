@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Student{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Student: {{ student.student_name }}</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <p>There were some issues with your submission. Please check below:</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="student_name" class="form-label">Student Name</label>
+            {{ form.student_name }}
+            <div class="text-danger">{{ form.student_name.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="student_register_number" class="form-label">Registration Number</label>
+            {{ form.student_register_number }}
+            <div class="text-danger">{{ form.student_register_number.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="student_admission_number" class="form-label">Admission Number</label>
+            {{ form.student_admission_number }}
+            <div class="text-danger">{{ form.student_admission_number.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="student_roll_number" class="form-label">Roll Number</label>
+            {{ form.student_roll_number }}
+            <div class="text-danger">{{ form.student_roll_number.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="abc_id" class="form-label">ABC ID</label>
+            {{ form.abc_id }}
+            <div class="text-danger">{{ form.abc_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            {{ form.email }}
+            <div class="text-danger">{{ form.email.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            {{ form.phone }}
+            <div class="text-danger">{{ form.phone.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            {{ form.gender }}
+            <div class="text-danger">{{ form.gender.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="dob" class="form-label">Date of Birth</label>
+            {{ form.dob }}
+            <div class="text-danger">{{ form.dob.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="parent_name" class="form-label">Parent's Name</label>
+            {{ form.parent_name }}
+            <div class="text-danger">{{ form.parent_name.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="parent_mobile_number" class="form-label">Parent's Mobile Number</label>
+            {{ form.parent_mobile_number }}
+            <div class="text-danger">{{ form.parent_mobile_number.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="program_id" class="form-label">Program</label>
+            {{ form.program_id }}
+            <div class="text-danger">{{ form.program_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="course_id" class="form-label">Course</label>
+            {{ form.course_id }}
+            <div class="text-danger">{{ form.course_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="department_id" class="form-label">Department</label>
+            {{ form.department_id }}
+            <div class="text-danger">{{ form.department_id.errors }}</div>
+        </div>
+
+        <!-- Submit and Back buttons -->
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'student_list' %}" class="btn btn-secondary">Back to Student List</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

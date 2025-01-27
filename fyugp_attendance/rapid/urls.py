@@ -1,4 +1,5 @@
 from django.urls import path
+from django.contrib.auth import views as auth_views
 from . import views
 
 urlpatterns = [
@@ -15,8 +16,8 @@ urlpatterns = [
     path('create-department/', views.create_department, name='create_department'),
     path('create-program-level/', views.create_program_level, name='create_program_level'),
     path('create-teacher/', views.create_teacher, name='create_teacher'),
-    path('create-role/', views.create_role, name='create_role'),
-    path('create-user/', views.create_user, name='create_user'),
+    #path('create-role/', views.create_role, name='create_role'),
+    #path('create-user/', views.create_user, name='create_user'),
     
     # List views
     path('course-list/', views.course_list, name='course_list'),
@@ -25,6 +26,26 @@ urlpatterns = [
     path('department-list/', views.department_list, name='department_list'),
     path('program-level-list/', views.program_level_list, name='program_level_list'),
     path('teacher-list/', views.teacher_list, name='teacher_list'),
-    path('role-list/', views.role_list, name='role_list'),
-    path('user-list/', views.user_list, name='user_list'),
+    #path('role-list/', views.role_list, name='role_list'),
+    #path('user-list/', views.user_list, name='user_list'),
+    
+    #edit views
+    path('edit-course/<int:pk>/', views.edit_course, name='edit_course'),
+    path('edit-teacher/<int:pk>/', views.edit_teacher, name='edit_teacher'),
+    path('edit-program/<int:pk>/', views.edit_program, name='edit_program'),
+    path('edit-student/<int:pk>/', views.edit_student, name='edit_student'),
+    path('edit-department/<int:pk>/', views.edit_department, name='edit_department'),
+    
+    #delete views
+    path('delete-course/<int:course_id>/', views.delete_course, name='delete_course'),
+    path('delete-teacher/<int:teacher_id>/', views.delete_teacher, name='delete_teacher'),
+    path('delete-program/<int:program_id>/', views.delete_program, name='delete_program'),
+    path('delete-student/<int:student_id>/', views.delete_student, name='delete_student'),
+    path('delete-department/<int:department_id>/', views.delete_department, name='delete_department'),
+    
+    
+    
+    
+    
+    path('logout/', views.custom_logout, name='logout'),
 ]

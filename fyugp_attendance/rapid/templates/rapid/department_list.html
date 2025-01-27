@@ -1,31 +1,38 @@
 {% extends "base.html" %}
 
 {% block title %}Department List{% endblock %}
-{% block header %}Departments{% endblock %}
+
 
 {% block content %}
-<h2>Departments</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for department in departments %}
-        <tr>
-            <td>{{ department.department_name }}</td>
-            <td>
-                <a href="/rapid/edit-department/{{ department.department_id }}">Edit</a>
-                <a href="/rapid/delete-department/{{ department.department_id }}">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="2">No departments available.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Available Departments</h2>
+        <a href="/rapid/create-department/" class="btn btn-danger">Add Department</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for department in departments %}
+                <tr>
+                    <td>{{ department.department_name }}</td>
+                    <td>
+                        <a href="{% url 'edit_department' department.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_department' department.department_id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center">No departments available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

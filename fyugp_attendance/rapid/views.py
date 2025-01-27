@@ -1,9 +1,11 @@
-from django.shortcuts import render, redirect
-from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm,ProgramLevelForm, TeacherForm, RoleForm, UserForm
-from .models import Course, Student, Program, Department,ProgramLevel, Teacher, Role, User
+from django.shortcuts import get_object_or_404, render, redirect
+from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm,ProgramLevelForm, TeacherForm
+from .models import Course, Student, Program, Department,ProgramLevel, Teacher
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-
+from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.contrib import messages
 
 # Landing Page
 def landing(request):
@@ -38,6 +40,9 @@ def signup_view(request):
         form = UserCreationForm()
     return render(request, 'rapid/signup.html', {'form': form})
 
+def custom_logout(request):
+    logout(request)
+    return redirect('/rapid/')
 
 def dashboard_view(request):
     # Check if the user is a superuser (admin)
@@ -120,7 +125,7 @@ def create_teacher(request):
     return render(request, 'rapid/create_teacher.html', {'form': form})
 
 # View for creating a new role
-def create_role(request):
+"""def create_role(request):
     if request.method == 'POST':
         form = RoleForm(request.POST)
         if form.is_valid():
@@ -141,7 +146,7 @@ def create_user(request):
     else:
         form = UserForm()
     
-    return render(request, 'rapid/create_user.html', {'form': form})
+    return render(request, 'rapid/create_user.html', {'form': form})"""
 
 # Optional: List views for each model (e.g., Course, Student, etc.)
 
@@ -178,11 +183,118 @@ def teacher_list(request):
     return render(request, 'rapid/teacher_list.html', {'teachers': teachers})
 
 # List view for all roles
-def role_list(request):
+"""def role_list(request):
     roles = Role.objects.all()  # Fetch all roles from the database
     return render(request, 'rapid/role_list.html', {'roles': roles})
 
 # List view for all users
 def user_list(request):
     users = User.objects.all()  # Fetch all users from the database
-    return render(request, 'rapid/user_list.html', {'users': users})
+    return render(request, 'rapid/user_list.html', {'users': users})"""
+
+#editting tables
+
+def edit_course(request, pk):
+    course = get_object_or_404(Course, pk=pk)
+    if request.method == "POST":
+        form = CourseForm(request.POST, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect('course_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = CourseForm(instance=course)
+    return render(request, 'rapid/edit_course.html', {'form': form})
+
+def edit_teacher(request, pk):
+    # Retrieve the teacher object by its ID
+    teacher = get_object_or_404(Teacher, pk=pk)
+
+    if request.method == 'POST':
+        form = TeacherForm(request.POST, instance=teacher)
+        if form.is_valid():
+            # Save the teacher instance and the related user information
+            form.save()
+            messages.success(request, "Teacher information updated successfully!")
+            return redirect('teacher_list')  # Redirect to the teacher list or another page
+    else:
+        form = TeacherForm(instance=teacher)
+
+    return render(request, 'rapid/edit_teacher.html', {'form': form})
+
+def edit_program(request, pk):
+    program = get_object_or_404(Program, pk=pk)
+    if request.method == "POST":
+        form = ProgramForm(request.POST, instance=program)
+        if form.is_valid():
+            form.save()
+            return redirect('program_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = ProgramForm(instance=program)
+    return render(request, 'rapid/edit_program.html', {'form': form})
+
+def edit_student(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = StudentForm(instance=student)
+    return render(request, 'rapid/edit_student.html', {'form': form})
+
+def edit_department(request, pk):
+    department = get_object_or_404(Department, pk=pk)
+    if request.method == "POST":
+        form = DepartmentForm(request.POST, instance=department)
+        if form.is_valid():
+            form.save()
+            return redirect('department_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = DepartmentForm(instance=department)
+    return render(request, 'rapid/edit_department.html', {'form': form})
+
+
+#deleting tables
+def delete_course(request, course_id):
+    course = get_object_or_404(Course, pk=course_id)
+    course.delete()
+    return redirect('course_list')
+
+
+def delete_teacher(request, teacher_id):
+    # Get the teacher object by its ID
+    teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+
+    #if request.method == 'POST':
+        # Delete the teacher
+    teacher.user_id.delete()  # Delete the related user (optional)
+    teacher.delete()  # Delete the teacher
+
+    messages.success(request, "Teacher deleted successfully.")
+    return redirect('teacher_list')  # Redirect to the teacher list
+
+    #return render(request, 'delete_teacher.html', {'teacher': teacher})
+    
+def delete_program(request, program_id):
+    program = get_object_or_404(Program, pk=program_id)
+    program.delete()
+    return redirect('program_list')
+
+def delete_student(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    student.delete()
+    return redirect('student_list')
+
+def delete_department(request, department_id):
+    department = get_object_or_404(Department, pk=department_id)
+    department.delete()
+    return redirect('department_list')

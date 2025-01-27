@@ -55,12 +55,12 @@ class Student(models.Model):
     def str(self):
         return f"{self.student_name} ({self.student_register_number})"
     
-class Role(models.Model):
+"""class Role(models.Model):
     role_id = models.AutoField(primary_key=True)
     role_name = models.CharField(max_length=100, unique=True)
 
     def __str__(self):
-        return self.role_name
+        return self.role_name"""
     
 """class User(models.Model):
     user_id = models.AutoField(primary_key=True)
@@ -74,7 +74,7 @@ class Role(models.Model):
 class Teacher(models.Model):
     teacher_id = models.AutoField(primary_key=True)
     teacher_name = models.CharField(max_length=100)
-    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_id = models.OneToOneField(User, on_delete=models.CASCADE)
     department_id = models.ForeignKey(Department, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)

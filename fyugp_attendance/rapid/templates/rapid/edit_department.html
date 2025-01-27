@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Department{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Department</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <p>There were some issues with your submission. Please check below:</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="department_name" class="form-label">Department Name</label>
+            {{ form.department_name }}
+            <div class="text-danger">{{ form.department_name.errors }}</div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'department_list' %}" class="btn btn-secondary">Back to Department List</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

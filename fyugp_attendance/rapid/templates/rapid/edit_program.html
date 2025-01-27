@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Program{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Program: {{ program.program_name }}</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <p>There were some issues with your submission. Please check below:</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="program_name" class="form-label">Program Name</label>
+            {{ form.program_name }}
+            <div class="text-danger">{{ form.program_name.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="department_id" class="form-label">Department</label>
+            {{ form.department_id }}
+            <div class="text-danger">{{ form.department_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="program_level_id" class="form-label">Program Level</label>
+            {{ form.program_level_id }}
+            <div class="text-danger">{{ form.program_level_id.errors }}</div>
+        </div>
+
+        <div class="d-flex justify-content-between">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'program_list' %}" class="btn btn-secondary">Back to Program List</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

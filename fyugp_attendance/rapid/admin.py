@@ -5,8 +5,8 @@ from .models import Program
 from .models import Department
 from .models import ProgramLevel
 from .models import Teacher
-from .models import Role
-from .models import User
+#from .models import Role
+#from .models import User
 
 admin.site.register(Course)
 admin.site.register(Student)
@@ -14,8 +14,8 @@ admin.site.register(Program)
 admin.site.register(Department)
 admin.site.register(ProgramLevel)
 admin.site.register(Teacher)
-admin.site.register(Role)
-admin.site.register(User)
+#admin.site.register(Role)
+#admin.site.register(User)
 
 class CourseAdmin(admin.ModelAdmin):
     list_display=('course_id','course_code','course_title','credit','department_id','strength','semester')
@@ -46,11 +46,11 @@ class TeacherAdmin(admin.ModelAdmin):
     search_fields = ('teacher_name', 'email', 'phone')
     list_filter = ('gender',)
     
-class RoleAdmin(admin.ModelAdmin):
+"""class RoleAdmin(admin.ModelAdmin):
     list_display = ('role_id', 'role_name')
     search_fields = ('role_name',)
     
 class UserAdmin(admin.ModelAdmin):
     list_display = ('user_id', 'username', 'role')
     search_fields = ('username',)
-    list_filter = ('role',)
+    list_filter = ('role',)"""

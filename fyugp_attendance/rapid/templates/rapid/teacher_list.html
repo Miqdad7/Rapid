@@ -1,35 +1,42 @@
 {% extends "base.html" %}
 
 {% block title %}Teacher List{% endblock %}
-{% block header %}Teachers{% endblock %}
+
 
 {% block content %}
-<h2>Teachers</h2>
-<table>
-    <thead>
-        <tr>
-            <th>Name</th>
-            <th>Department</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for teacher in teachers %}
-        <tr>
-            <td>{{ teacher.name }}</td>
-            <td>{{ teacher.department }}</td>
-            <td>{{ teacher.email }}</td>
-            <td>
-                <a href="/rapid/edit-teacher/{{ teacher.id }}">Edit</a>
-                <a href="/rapid/delete-teacher/{{ teacher.id }}">Delete</a>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="4">No teachers available.</td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Teachers</h2>
+        <a href="/rapid/create-teacher/" class="btn btn-danger">Add Teacher</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Name</th>
+                    <th>Department</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.teacher_name }}</td>
+                    <td>{{ teacher.department_id }}</td>
+                    <td>{{ teacher.email }}</td>
+                    <td>
+                        <a href="{% url 'edit_teacher' teacher.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_teacher' teacher.teacher_id %}" class="btn btn-danger btn-sm">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No teachers available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock %}

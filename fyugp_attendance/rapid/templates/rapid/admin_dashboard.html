@@ -1,19 +1,130 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Dashboard</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Styles (optional) -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .dashboard-header {
+            background-color: #343a40;
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .dashboard-header h1 {
+            margin: 0;
+            text-align: center;
+            flex-grow: 1;
+        }
+        .dashboard-card {
+            transition: transform 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: scale(1.05);
+        }
+        .card-body {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .logout-btn {
+            margin-left: auto;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome Admin</h1>
-    <ul>
-        <li><a href="/admin/">Go to Admin Panel</a></li>
-        <li><a href="/rapid/create-teacher/">Add Teacher</a></li>
-        <li><a href="/rapid/create-program/">Add Program</a></li>
-        <li><a href="/rapid/create-student/">Add Student</a></li>
-        <li><a href="/rapid/create-course/">Add Course</a></li>
-    </ul>
+    <!-- Dashboard Header -->
+    <header class="dashboard-header">
+        <h1 class="text-center">Welcome Admin</h1>
+        <!-- Logout Button -->
+        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+    </header>
+
+    <!-- Dashboard Content -->
+    <div class="container my-5">
+        <div class="row g-4 d-flex align-items-stretch">
+            <!-- Admin Panel -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Admin Panel</h5>
+                        <p class="card-text">Manage site-wide settings and configurations.</p>
+                        <a href="/admin/" class="btn btn-primary mt-auto">Go to Admin Panel</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Teacher -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Teachers</h5>
+                        <p class="card-text">Add and manage teachers to the system.</p>
+                        <a href="/rapid/teacher-list/" class="btn btn-success mt-auto">Manage Teachers</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Program -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Programs</h5>
+                        <p class="card-text">Create and manage academic programs.</p>
+                        <a href="/rapid/program-list/" class="btn btn-info mt-auto">Manage Program</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Student -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Students</h5>
+                        <p class="card-text">Enroll students in the system.</p>
+                        <a href="/rapid/student-list/" class="btn btn-warning mt-auto">Manage Students</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Course -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Courses</h5>
+                        <p class="card-text">Define courses for various programs.</p>
+                        <a href="/rapid/course-list/" class="btn btn-danger mt-auto">Manage Course</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Department -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Departments</h5>
+                        <p class="card-text">Create and manage departments in the system.</p>
+                        <a href="/rapid/department-list/" class="btn btn-secondary mt-auto">Manage Departments</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center py-3 bg-light mt-5">
+        <p class="mb-0">© 2025 NASC. All rights reserved.</p>
+    </footer>
+
+    <!-- Bootstrap JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
