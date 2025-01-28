@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Enrollment{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Enrollment for {{ student_course.student_id }} in {{ student_course.course_id }}</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <p>There were some issues with your submission. Please check below:</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="student_id" class="form-label">Student</label>
+            {{ form.student_id }}
+            <div class="text-danger">{{ form.student_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="course_id" class="form-label">Course</label>
+            {{ form.course_id }}
+            <div class="text-danger">{{ form.course_id.errors }}</div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'enroll_student_list' %}" class="btn btn-secondary">Back to Enrollments List</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

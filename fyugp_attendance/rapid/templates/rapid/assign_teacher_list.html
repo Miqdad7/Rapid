@@ -1,33 +1,31 @@
 {% extends "base.html" %}
 
-{% block title %}Teacher List{% endblock %}
+{% block title %}Teacher Assigning{% endblock %}
 
 
 {% block content %}
 <div class="container mt-5">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Teachers</h2>
-        <a href="/create-teacher/" class="btn btn-danger">Add Teacher</a>
+        <h2>Assigned Teachers</h2>
+        <a href="/assign-teachers/" class="btn btn-danger">Assign Teachers</a>
     </div>
     <div class="table-responsive">
         <table class="table table-bordered table-striped">
             <thead class="table-dark">
                 <tr>
-                    <th>Name</th>
-                    <th>Department</th>
-                    <th>Email</th>
+                    <th>Teacher</th>
+                    <th>Course</th>
                     <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for teacher in teachers %}
+                {% for assign in assigns %}
                 <tr>
-                    <td>{{ teacher.teacher_name }}</td>
-                    <td>{{ teacher.department_id }}</td>
-                    <td>{{ teacher.email }}</td>
+                    <td>{{ assign.teacher_id }}</td>
+                    <td>{{ assign.course_id }}</td>
                     <td>
-                        <a href="{% url 'edit_teacher' teacher.pk %}" class="btn btn-warning btn-sm">Edit</a>
-                        <a href="{% url 'delete_teacher' teacher.teacher_id %}" class="btn btn-danger btn-sm">Delete</a>
+                        <a href="{% url 'edit_teacherCourse' assign.pk %}" class="btn btn-warning btn-sm">Edit</a>
+                        <a href="{% url 'delete_teacherCourse' assign.id %}" class="btn btn-danger btn-sm">Delete</a>
                     </td>
                 </tr>
                 {% empty %}

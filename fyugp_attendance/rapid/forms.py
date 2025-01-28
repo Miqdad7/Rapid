@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Course, Student, Program, Department,ProgramLevel, Teacher
+from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse
 
 # Form for Department model
 class DepartmentForm(forms.ModelForm):
@@ -12,35 +12,31 @@ class DepartmentForm(forms.ModelForm):
 class CourseForm(forms.ModelForm):
     class Meta:
         model = Course
-        fields = ['course_id', 'course_code', 'course_title', 'credit', 'department_id', 'strength', 'semester']
-        widgets = {
-            'semester': forms.Select(choices=[(1, 'Semester 1'), (2, 'Semester 2'), (3, 'Semester 3')])
-        }
+        fields = ['course_id', 'course_code', 'course_title', 'credit', 'department_id', 'strength','year_offered']
+        
 
 
 # Form for ProgramLevel model
-class ProgramLevelForm(forms.ModelForm):
+"""class ProgramLevelForm(forms.ModelForm):
     class Meta:
         model = ProgramLevel
-        fields = ['program_level_id','program_level_name']
+        fields = ['program_level_id','program_level_name']"""
 
 # Form for Program model
 class ProgramForm(forms.ModelForm):
     class Meta:
         model = Program
-        fields = ['program_id','program_name', 'department_id', 'program_level_id']
-        widgets = {
-            'program_level_id': forms.Select()
-        }
+        fields = ['program_id','program_name', 'department_id']
+        
 
 # Form for Student model
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
         fields = ['student_name', 'student_register_number', 'student_admission_number', 'student_roll_number',
-                  'abc_id', 'email', 'phone', 'gender', 'dob', 'parent_name', 'parent_mobile_number', 'program_id', 'course_id', 'department_id']
+                   'gender','program_id','department_id']
         widgets = {
-            'dob': forms.DateInput(attrs={'type': 'date'}),
+            #'dob': forms.DateInput(attrs={'type': 'date'}),
             'gender': forms.Select(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]),
             
         }
@@ -100,4 +96,35 @@ class TeacherForm(forms.ModelForm):
         
         return teacher
 
-
+class StudentCourseForm(forms.ModelForm):
+    class Meta:
+        model = StudentCourse
+        fields = ['student_id', 'course_id']  # Fields to include in the form
+        widgets = {
+            'student_id': forms.Select(attrs={'class': 'form-control'}),
+            'course_id': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'student_id': 'Student',
+            'course_id': 'Course',
+        }
+        help_texts = {
+            'student_id': 'Select the student to enroll.',
+            'course_id': 'Select the course for enrollment.',
+        }
+class TeacherCourseForm(forms.ModelForm):
+    class Meta:
+        model = TeacherCourse
+        fields = ['teacher_id', 'course_id']  # Fields to include in the form
+        widgets = {
+            'teacher_id': forms.Select(attrs={'class': 'form-control'}),
+            'course_id': forms.Select(attrs={'class': 'form-control'}),
+        }
+        labels = {
+            'teacher_id': 'Teacher',
+            'course_id': 'Course',
+        }
+        help_texts = {
+            'teacher_id': 'Select the Teacher to enroll.',
+            'course_id': 'Select the course for enrollment.',
+        }

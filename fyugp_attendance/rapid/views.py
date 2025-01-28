@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
-from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm,ProgramLevelForm, TeacherForm
-from .models import Course, Student, Program, Department,ProgramLevel, Teacher
+from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm
+from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
@@ -42,7 +42,7 @@ def signup_view(request):
 
 def custom_logout(request):
     logout(request)
-    return redirect('/rapid/')
+    return redirect('/login/')
 
 def dashboard_view(request):
     # Check if the user is a superuser (admin)
@@ -101,7 +101,7 @@ def create_department(request):
 
 
 # View for creating a new program level
-def create_program_level(request):
+"""def create_program_level(request):
     if request.method == 'POST':
         form = ProgramLevelForm(request.POST)
         if form.is_valid():
@@ -110,7 +110,7 @@ def create_program_level(request):
     else:
         form = ProgramLevelForm()
     
-    return render(request, 'rapid/create_program_level.html', {'form': form})
+    return render(request, 'rapid/create_program_level.html', {'form': form})"""
 
 # View for creating a new teacher
 def create_teacher(request):
@@ -123,6 +123,28 @@ def create_teacher(request):
         form = TeacherForm()
     
     return render(request, 'rapid/create_teacher.html', {'form': form})
+
+def enroll_student(request):
+    if request.method == 'POST':
+        form = StudentCourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('enroll_student_list')  # Replace with your success URL
+    else:
+        form = StudentCourseForm()
+
+    return render(request, 'rapid/enroll_student.html', {'form': form})
+
+def assign_teacher(request):
+    if request.method == 'POST':
+        form = TeacherCourseForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('assign_teacher_list')  # Replace with your success URL
+    else:
+        form = TeacherCourseForm()
+
+    return render(request, 'rapid/assign_teacher.html', {'form': form})
 
 # View for creating a new role
 """def create_role(request):
@@ -173,15 +195,22 @@ def department_list(request):
 
 
 # List view for all program levels
-def program_level_list(request):
+"""def program_level_list(request):
     program_levels = ProgramLevel.objects.all()  # Fetch all program levels from the database
-    return render(request, 'rapid/program_level_list.html', {'program_levels': program_levels})
+    return render(request, 'rapid/program_level_list.html', {'program_levels': program_levels})"""
 
 # List view for all teachers
 def teacher_list(request):
     teachers = Teacher.objects.all()  # Fetch all teachers from the database
     return render(request, 'rapid/teacher_list.html', {'teachers': teachers})
 
+def enroll_student_list(request):
+    enrollments = StudentCourse.objects.select_related('student_id', 'course_id').all()
+    return render(request, 'rapid/enroll_student_list.html', {'enrollments': enrollments})
+
+def assign_teacher_list(request):
+    assigns = TeacherCourse.objects.select_related('teacher_id', 'course_id').all()
+    return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns})
 # List view for all roles
 """def role_list(request):
     roles = Role.objects.all()  # Fetch all roles from the database
@@ -262,6 +291,32 @@ def edit_department(request, pk):
         form = DepartmentForm(instance=department)
     return render(request, 'rapid/edit_department.html', {'form': form})
 
+def edit_studentCourse(request, pk):
+    studentCourse = get_object_or_404(StudentCourse, pk=pk)
+    if request.method == "POST":
+        form = StudentCourseForm(request.POST, instance=studentCourse)
+        if form.is_valid():
+            form.save()
+            return redirect('enroll_student_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = StudentCourseForm(instance=studentCourse)
+    return render(request, 'rapid/edit_enroll_student_list.html', {'form': form})
+
+def edit_teacherCourse(request, pk):
+    teacherCourse = get_object_or_404(TeacherCourse, pk=pk)
+    if request.method == "POST":
+        form = TeacherCourseForm(request.POST, instance=teacherCourse)
+        if form.is_valid():
+            form.save()
+            return redirect('assign_teacher_list')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = TeacherCourseForm(instance=teacherCourse)
+    return render(request, 'rapid/edit_assign_teacher.html', {'form': form})
+
 
 #deleting tables
 def delete_course(request, course_id):
@@ -298,3 +353,13 @@ def delete_department(request, department_id):
     department = get_object_or_404(Department, pk=department_id)
     department.delete()
     return redirect('department_list')
+
+def delete_studentCourse(request, id):
+    studentCourse = get_object_or_404(StudentCourse, pk=id)
+    studentCourse.delete()
+    return redirect('enroll_student_list')
+
+def delete_teacherCourse(request, id):
+    teacherCourse = get_object_or_404(TeacherCourse, pk=id)
+    teacherCourse.delete()
+    return redirect('assign_teacher_list')

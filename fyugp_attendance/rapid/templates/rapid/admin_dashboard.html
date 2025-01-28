@@ -51,6 +51,7 @@
     <!-- Dashboard Content -->
     <div class="container my-5">
         <div class="row g-4 d-flex align-items-stretch">
+            
             <!-- Admin Panel -->
             <div class="col-md-3 d-flex">
                 <div class="card dashboard-card shadow-sm flex-grow-1">
@@ -62,13 +63,13 @@
                 </div>
             </div>
 
-            <!-- Add Teacher -->
+            <!-- Add Department -->
             <div class="col-md-3 d-flex">
                 <div class="card dashboard-card shadow-sm flex-grow-1">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Manage Teachers</h5>
-                        <p class="card-text">Add and manage teachers to the system.</p>
-                        <a href="/rapid/teacher-list/" class="btn btn-success mt-auto">Manage Teachers</a>
+                        <h5 class="card-title">Manage Departments</h5>
+                        <p class="card-text">Create and manage departments in the system.</p>
+                        <a href="/department-list/" class="btn btn-secondary mt-auto">Manage Departments</a>
                     </div>
                 </div>
             </div>
@@ -79,18 +80,7 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Programs</h5>
                         <p class="card-text">Create and manage academic programs.</p>
-                        <a href="/rapid/program-list/" class="btn btn-info mt-auto">Manage Program</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Add Student -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
-                    <div class="card-body text-center">
-                        <h5 class="card-title">Manage Students</h5>
-                        <p class="card-text">Enroll students in the system.</p>
-                        <a href="/rapid/student-list/" class="btn btn-warning mt-auto">Manage Students</a>
+                        <a href="/program-list/" class="btn btn-secondary mt-auto">Manage Program</a>
                     </div>
                 </div>
             </div>
@@ -101,21 +91,57 @@
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Courses</h5>
                         <p class="card-text">Define courses for various programs.</p>
-                        <a href="/rapid/course-list/" class="btn btn-danger mt-auto">Manage Course</a>
+                        <a href="/course-list/" class="btn btn-secondary mt-auto">Manage Course</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Department -->
+            <!-- Add Teacher -->
             <div class="col-md-3 d-flex">
                 <div class="card dashboard-card shadow-sm flex-grow-1">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Manage Departments</h5>
-                        <p class="card-text">Create and manage departments in the system.</p>
-                        <a href="/rapid/department-list/" class="btn btn-secondary mt-auto">Manage Departments</a>
+                        <h5 class="card-title">Manage Teachers</h5>
+                        <p class="card-text">Add and manage teachers to the system.</p>
+                        <a href="/teacher-list/" class="btn btn-success mt-auto">Manage Teachers</a>
                     </div>
                 </div>
             </div>
+
+            <!-- Assign Teacher -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Assign Teachers</h5>
+                        <p class="card-text">Assign teachers into courses in the system.</p>
+                        <a href="/assigned-list/" class="btn btn-success mt-auto">Assign Teachers</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Student -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Manage Students</h5>
+                        <p class="card-text">Enroll students in the system.</p>
+                        <a href="/student-list/" class="btn btn-warning mt-auto">Manage Students</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Enroll Student -->
+            <div class="col-md-3 d-flex">
+                <div class="card dashboard-card shadow-sm flex-grow-1">
+                    <div class="card-body text-center">
+                        <h5 class="card-title">Enroll Student</h5>
+                        <p class="card-text">Enroll students into courses in the system.</p>
+                        <a href="/enrollments-list/" class="btn btn-warning mt-auto">Enroll Student</a>
+                    </div>
+                </div>
+            </div>
+
+            
+
         </div>
     </div>
 
