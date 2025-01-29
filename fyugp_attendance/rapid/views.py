@@ -12,7 +12,7 @@ def landing(request):
     return render(request, 'rapid/landing.html')
 
 # Login Page
-def login_view(request):
+"""def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
@@ -26,7 +26,32 @@ def login_view(request):
         else:
             return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
 
+    return render(request, 'rapid/login.html')"""
+    
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            if user.is_superuser:  # Admin
+                return redirect('admin_dashboard')
+            else:
+                try:
+                    # Check if the user is a teacher
+                    teacher = Teacher.objects.get(user_id=user)
+                    return redirect('user_dashboard')  # Redirect teacher to their dashboard
+                except Teacher.DoesNotExist:
+                    # If the user is not a teacher, handle accordingly
+                    return redirect('user_dashboard')  # Or another redirect if necessary
+        else:
+            return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
     return render(request, 'rapid/login.html')
+
+
+
+
 
 # Signup Page
 def signup_view(request):
@@ -44,12 +69,30 @@ def custom_logout(request):
     logout(request)
     return redirect('/login/')
 
-def dashboard_view(request):
+"""def dashboard_view(request):
     # Check if the user is a superuser (admin)
     if request.user.is_superuser:
         return render(request, 'rapid/admin_dashboard.html')
     else:
-        return render(request, 'rapid/user_dashboard.html')
+        return render(request, 'rapid/user_dashboard.html')"""
+def dashboard_view(request):
+    if request.user.is_superuser:  # Admin dashboard
+        return render(request, 'rapid/admin_dashboard.html')
+    else:
+        try:
+            # Get the teacher object based on the logged-in user
+            teacher = Teacher.objects.get(user_id=request.user)
+            # Fetch the courses assigned to this teacher
+            assigned_courses = TeacherCourse.objects.filter(teacher_id=teacher) 
+            return render(request, 'rapid/user_dashboard.html', {'assigned_courses': assigned_courses})
+        except Teacher.DoesNotExist:
+            # Handle if the logged-in user is not a teacher (maybe a regular user)
+            return redirect('user_dashboard')  # Or any appropriate action for non-teachers
+
+    
+
+
+
 
 # View for creating a new course
 def create_course(request):
@@ -363,3 +406,12 @@ def delete_teacherCourse(request, id):
     teacherCourse = get_object_or_404(TeacherCourse, pk=id)
     teacherCourse.delete()
     return redirect('assign_teacher_list')
+
+
+
+
+def course_students(request, course_id):
+    # Fetch the students enrolled in the selected course
+    
+    student = StudentCourse.objects.filter(course_id=course_id)
+    return render(request, 'rapid/course_students.html', {'student': student,'course': course_id})

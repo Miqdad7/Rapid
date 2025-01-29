@@ -1,0 +1,21 @@
+<h3>Students Enrolled in {{ course.course_title }}</h3>
+<table border="1">
+    <thead>
+        <tr>
+            <th>Student Name</th>
+            <th>Roll Number</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for enrollment in student %}
+            <tr>
+                <td>{{ enrollment.student_id.student_name }}</td>
+                <td>{{ enrollment.student_id.student_roll_number }}</td>
+            </tr>
+        {% empty %}
+            <tr>
+                <td colspan="2">No students are enrolled in this course.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

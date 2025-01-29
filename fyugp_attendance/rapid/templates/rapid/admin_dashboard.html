@@ -6,148 +6,221 @@
     <title>Admin Dashboard</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Custom Styles (optional) -->
+    <!-- Font Awesome for Logout Icon -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
     <style>
         body {
-            background-color: #f8f9fa;
+            background-color: antiquewhite;
+            font-family: 'Roboto', sans-serif;
+            color: #333;
         }
+
         .dashboard-header {
-            background-color: #343a40;
+            background-color: #343a40;;
             color: white;
-            padding: 20px;
+            padding: 30px;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
         .dashboard-header h1 {
             margin: 0;
-            text-align: center;
-            flex-grow: 1;
+            font-size: 1.8rem;
+            font-weight: 600;
         }
-        .dashboard-card {
-            transition: transform 0.3s ease;
+
+        .dashboard-header .btn {
+            background-color: #007bff; /* Professional blue color */
+            border: none;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
         }
-        .dashboard-card:hover {
-            transform: scale(1.05);
+
+        .dashboard-header .btn:hover {
+            background-color: #0056b3; /* Darker blue for hover effect */
         }
+
+        /* Logout Button Styling */
+        .btn-logout {
+            background-color: #e74c3c; /* Red color for logout */
+            border: none;
+            padding: 10px 20px;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+            border-radius: 5px;
+        }
+
+        .btn-logout:hover {
+            background-color: #c0392b; /* Darker red for hover */
+        }
+
+        .card {
+            border-radius: 12px;
+            border: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .card-body {
+            padding: 30px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
         }
-        .logout-btn {
-            margin-left: auto;
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+
+        .card-text {
+            font-size: 1rem;
+            color: #7f8c8d;
+        }
+
+        .btn-custom {
+            border-radius: 5px;
+            padding: 10px;
+            font-weight: 500;
+            background-color: #5f6368; /* Lighter color for other buttons */
+            border: none;
+            color: white;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-custom:hover {
+            background-color: #4e5558; /* Slightly darker grey for hover effect */
+            opacity: 0.9;
+        }
+
+        footer {
+            background-color: #f1f1f1;
+            color: #7f8c8d;
+            padding: 20px;
+            font-size: 0.9rem;
+            border-top: 1px solid #ddd;
         }
     </style>
 </head>
 <body>
     <!-- Dashboard Header -->
     <header class="dashboard-header">
-        <h1 class="text-center">Welcome Admin</h1>
-        <!-- Logout Button -->
-        <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+        <h1 class="text-center">Admin Dashboard</h1>
+        <!-- Logout Button with Icon -->
+        <a href="{% url 'logout' %}" class="btn-logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
     </header>
 
     <!-- Dashboard Content -->
     <div class="container my-5">
-        <div class="row g-4 d-flex align-items-stretch">
+        <div class="row g-4">
             
             <!-- Admin Panel -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Admin Panel</h5>
                         <p class="card-text">Manage site-wide settings and configurations.</p>
-                        <a href="/admin/" class="btn btn-primary mt-auto">Go to Admin Panel</a>
+                        <a href="/admin/" class="btn btn-custom">Go to Admin Panel</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Department -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Manage Departments -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Departments</h5>
                         <p class="card-text">Create and manage departments in the system.</p>
-                        <a href="/department-list/" class="btn btn-secondary mt-auto">Manage Departments</a>
+                        <a href="/department-list/" class="btn btn-custom">Manage Departments</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Program -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Manage Programs -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Programs</h5>
                         <p class="card-text">Create and manage academic programs.</p>
-                        <a href="/program-list/" class="btn btn-secondary mt-auto">Manage Program</a>
+                        <a href="/program-list/" class="btn btn-custom">Manage Programs</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Course -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Manage Courses -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Courses</h5>
                         <p class="card-text">Define courses for various programs.</p>
-                        <a href="/course-list/" class="btn btn-secondary mt-auto">Manage Course</a>
+                        <a href="/course-list/" class="btn btn-custom">Manage Courses</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Teacher -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Manage Teachers -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Teachers</h5>
                         <p class="card-text">Add and manage teachers to the system.</p>
-                        <a href="/teacher-list/" class="btn btn-success mt-auto">Manage Teachers</a>
+                        <a href="/teacher-list/" class="btn btn-custom">Manage Teachers</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Assign Teacher -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Assign Teachers -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Assign Teachers</h5>
                         <p class="card-text">Assign teachers into courses in the system.</p>
-                        <a href="/assigned-list/" class="btn btn-success mt-auto">Assign Teachers</a>
+                        <a href="/assigned-list/" class="btn btn-custom">Assign Teachers</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Add Student -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Manage Students -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
                         <h5 class="card-title">Manage Students</h5>
-                        <p class="card-text">Enroll students in the system.</p>
-                        <a href="/student-list/" class="btn btn-warning mt-auto">Manage Students</a>
+                        <p class="card-text">Add and manage students in the system.</p>
+                        <a href="/student-list/" class="btn btn-custom">Manage Students</a>
                     </div>
                 </div>
             </div>
 
-            <!-- Enroll Student -->
-            <div class="col-md-3 d-flex">
-                <div class="card dashboard-card shadow-sm flex-grow-1">
+            <!-- Enroll Students -->
+            <div class="col-md-3">
+                <div class="card shadow-sm">
                     <div class="card-body text-center">
-                        <h5 class="card-title">Enroll Student</h5>
+                        <h5 class="card-title">Enroll Students</h5>
                         <p class="card-text">Enroll students into courses in the system.</p>
-                        <a href="/enrollments-list/" class="btn btn-warning mt-auto">Enroll Student</a>
+                        <a href="/enrollments-list/" class="btn btn-custom">Enroll Students</a>
                     </div>
                 </div>
             </div>
-
-            
 
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="text-center py-3 bg-light mt-5">
-        <p class="mb-0">© 2025 NASC. All rights reserved.</p>
+    <footer>
+        <p class="mb-0">© 2025 RAPID. All rights reserved.</p>
     </footer>
 
     <!-- Bootstrap JavaScript -->
