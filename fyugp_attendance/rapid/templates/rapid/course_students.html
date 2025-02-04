@@ -1,21 +1,77 @@
-<h3>Students Enrolled in {{ course.course_title }}</h3>
-<table border="1">
-    <thead>
-        <tr>
-            <th>Student Name</th>
-            <th>Roll Number</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for enrollment in student %}
-            <tr>
-                <td>{{ enrollment.student_id.student_name }}</td>
-                <td>{{ enrollment.student_id.student_roll_number }}</td>
-            </tr>
-        {% empty %}
-            <tr>
-                <td colspan="2">No students are enrolled in this course.</td>
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enrolled Students</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            width: 80%;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        h3 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        .no-students {
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h3>Students Enrolled in <span style="color: #007bff;">{{ course.course_title }}</span></h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Roll Number</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in student_course_list %}
+                    <tr>
+                        <td>{{ enrollment.student_id.student_name }}</td>
+                        <td>{{ enrollment.student_id.student_roll_number }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="2" class="no-students">No students are enrolled in this course.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

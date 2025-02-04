@@ -111,3 +111,15 @@ class TeacherCourse(models.Model):
 
     def __str__(self):
         return f"Teacher {self.teacher_id} assigned in Course {self.course_id}"
+
+
+class Section(models.Model):
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+    section_id = models.AutoField(primary_key=True)
+    course_id=models.ForeignKey(Course, on_delete=models.CASCADE)
+    year=models.IntegerField()
+    part=models.IntegerField()
+    status = models.CharField(max_length=8, choices=STATUS_CHOICES, default='active')
