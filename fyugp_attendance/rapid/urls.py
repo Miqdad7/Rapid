@@ -55,4 +55,9 @@ urlpatterns = [
     
     
     path('logout/', views.custom_logout, name='logout'),
+    
+    path('course-students/<int:course_id>/', views.course_students, name='course_students'),
+
+
+
 ]

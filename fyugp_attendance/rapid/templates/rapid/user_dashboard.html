@@ -1,12 +1,95 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-</head>
-<body>
-    <h1>Welcome {{ user.username }}</h1>
-    <p>You are logged in as a regular user.</p>
-</body>
-</html>
+<div class="dashboard">
+    <h2>Welcome to Your Dashboard, {{ request.user.username }}!</h2>
+
+    <div class="logout-container">
+        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
+    </div>
+
+    <section class="assigned-courses">
+        <h3>Assigned Courses</h3>
+        {% if assigned_courses %}
+            <ul class="course-list">
+                {% for course in assigned_courses %}
+                    <li class="course-item">
+                        <a href="{% url 'course_students' course.course_id_id %}" class="course-link">
+                            {{ course.course_id.course_title }}
+                        </a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-courses">You are not assigned to any courses at the moment.</p>
+        {% endif %}
+    </section>
+</div>
+
+<style>
+    .dashboard {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 20px auto;
+        padding: 20px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        text-align: center;
+    }
+    
+    h2 {
+        color: #333;
+    }
+
+    .logout-container {
+        text-align: right;
+        margin-bottom: 10px;
+    }
+
+    .logout-button {
+        text-decoration: none;
+        background: #dc3545;
+        color: white;
+        padding: 8px 15px;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background 0.3s ease-in-out;
+    }
+
+    .logout-button:hover {
+        background: #a71d2a;
+    }
+    
+    .assigned-courses {
+        margin-top: 20px;
+    }
+    
+    .course-list {
+        list-style: none;
+        padding: 0;
+    }
+    
+    .course-item {
+        background: #ffffff;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .course-link {
+        text-decoration: none;
+        font-size: 18px;
+        color: #007bff;
+        font-weight: bold;
+        transition: color 0.3s ease-in-out;
+    }
+    
+    .course-link:hover {
+        color: #0056b3;
+    }
+    
+    .no-courses {
+        color: #777;
+        text-align: center;
+        font-style: italic;
+    }
+</style>
