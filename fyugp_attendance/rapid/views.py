@@ -1,13 +1,25 @@
 from django.shortcuts import get_object_or_404, render, redirect,HttpResponse
-from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm
-from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse
+from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm, HourDateCourseForm, AbsentDetailsForm
+from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse, HourDateCourse, AbsentDetails
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth import logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
+from datetime import date
+from datetime import datetime
+from django.db import IntegrityError
 
+def calculate_year(current_date):
+    """
+    Calculate the academic year based on the date.
+    June 1 of a year to May 31 of the next year is considered the same academic year.
+    """
+    if current_date.month >= 6:  # From June to December
+        return current_date.year
+    else:  # From January to May
+        return current_date.year - 1
 # Landing Page
 def landing(request):
     return render(request, 'rapid/landing.html')
@@ -29,7 +41,7 @@ def landing(request):
 
     return render(request, 'rapid/login.html')"""
     
-def login_view(request):
+"""def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password'] 
@@ -48,23 +60,41 @@ def login_view(request):
                     return redirect('user_dashboard')  # Or another redirect if necessary
         else:
             return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
+    return render(request, 'rapid/login.html')"""
+    
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            
+            if user.is_superuser:  # Admin login
+                return redirect('admin_dashboard')
+
+            try:
+                teacher = Teacher.objects.get(user_id=user)
+                if teacher.is_hod:
+                    return redirect('hod_dashboard')  # Redirect HODs
+                else:
+                    return redirect('user_dashboard')  # Redirect normal teachers
+            except Teacher.DoesNotExist:
+                return render(request, 'rapid/login.html', {'error': 'Unauthorized access'})  
+
+        else:
+            return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
+
     return render(request, 'rapid/login.html')
 
 
 
 
 
-# Signup Page
-def signup_view(request):
-    if request.method == "POST":
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('course-list')  # Redirect to dashboard or home
-    else:
-        form = UserCreationForm()
-    return render(request, 'rapid/signup.html', {'form': form})
+
+
+
 
 def custom_logout(request):
     logout(request)
@@ -90,7 +120,36 @@ def dashboard_view(request):
             # Handle if the logged-in user is not a teacher (maybe a regular user)
             return redirect('user_dashboard')  # Or any appropriate action for non-teachers
 
-    
+@login_required
+def hod_dashboard(request):
+    try:
+        # Get the logged-in HOD
+        hod = Teacher.objects.get(user_id=request.user, is_hod=True)
+        department = hod.department_id
+
+        # Get students, teachers, and courses in the same department
+        students = Student.objects.filter(department_id=department)
+        teachers = Teacher.objects.filter(department_id=department)
+        courses = Course.objects.filter(department_id=department)
+        #assigned_courses = Course.objects.filter(teachercourse__teacher=hod)
+        assigned_courses = Course.objects.filter(course_id__in=TeacherCourse.objects.filter(teacher_id=hod).values_list('course_id', flat=True))
+        course_students = {
+            course.course_id: StudentCourse.objects.filter(course_id=course).select_related('student')
+            for course in courses
+        }
+
+        context = {
+            'students': students,
+            'teachers': teachers,
+            'courses': courses,
+            'department': department,
+            'assigned_courses':assigned_courses,
+            'course_students': course_students,
+        }
+        return render(request, 'rapid/hod_dashboard.html', context)
+
+    except Teacher.DoesNotExist:
+        return render(request, 'rapid/login.html', {'error': 'Unauthorized access'})
 
 
 
@@ -220,6 +279,7 @@ def create_user(request):
 def course_list(request):
     courses = Course.objects.all()  # Fetch all courses from the database
     return render(request, 'rapid/course_list.html', {'courses': courses})
+
 
 # List view for all students
 def student_list(request):
@@ -416,3 +476,76 @@ def course_students(request, course_id):
     course = get_object_or_404(Course, course_id=course_id)
     student_course_list = StudentCourse.objects.filter(course_id=course_id)
     return render(request, 'rapid/course_students.html', {'student_course_list': student_course_list,'course': course})
+
+
+def take_attendance(request, course_id):
+    # Get the logged-in teacher
+    teacher = request.user.teacher  # Assuming the user is a teacher
+
+    # Get the course assigned to the teacher
+    course = get_object_or_404(Course, course_id=course_id)
+
+    # Ensure that the logged-in teacher is assigned to the course
+    """if not TeacherCourse.objects.filter(teacher=teacher, course=course).exists():
+        messages.error(request, "You are not authorized to take attendance for this course.")
+        return redirect('course_list')  # Redirect if the teacher is not authorized"""
+
+    # Get all students assigned to this course
+    student_courses = StudentCourse.objects.filter(course_id=course)
+    students = [student_course.student_id for student_course in student_courses]
+
+    if request.method == 'POST':
+        # Get the selected date (default today)
+        attendance_date = request.POST.get('date', str(date.today()))
+        attendance_date = date.fromisoformat(attendance_date)
+
+        # Get the selected hours (from checkboxes)
+        selected_hours = request.POST.getlist('hours')
+
+        # Loop through the selected hours and create HourDateCourse entries for each
+        for hour in selected_hours:
+            try:
+                # Try to create the HourDateCourse entry
+                hour_date_course = HourDateCourse.objects.create(
+                    course=course,
+                    teacher=teacher,
+                    date=attendance_date,
+                    hour=int(hour),
+                )
+
+                messages.success(request, f"Attendance successfully recorded for Hour {hour}")
+            except IntegrityError:
+                # Handle the case where the HourDateCourse entry already exists
+                existing_record = HourDateCourse.objects.get(course_id=course, date=attendance_date, hour=int(hour))
+                existing_teacher = existing_record.teacher
+
+                # Get teacher details (first name, last name, phone number) from the related user model
+                teacher_full_name = f"{existing_teacher.user_id.teacher_name}"
+                teacher_phone = existing_teacher.phone
+
+                # Format the message with teacher name and phone
+                messages.warning(request, f"Attendance already taken By {teacher_full_name} ({teacher_phone}) in Hour {hour} on {attendance_date}")
+                continue  # Skip this hour and move to the next one
+
+            # Iterate through each student and check if they are marked as absent
+            for student in students:
+                if f'students_{student.student_id}' in request.POST:
+                    # Create or update the AbsentDetails record for the student
+                    AbsentDetails.objects.update_or_create(
+                        hour_date_course=hour_date_course,
+                        student=student,
+                        defaults={'status': False}  # False means absent
+                    )
+
+        
+        if teacher.is_hod:
+            return redirect('hod_dashboard')  # Redirect to HOD dashboard
+        else:
+            return redirect('user_dashboard')  # Redirect to Teacher dashboard
+
+    return render(request, 'rapid/take_attendance.html', {
+        'course': course,
+        'students': students,
+        'today': date.today(),
+        'hours': range(1, 6),  # Provide hours from 1 to 5
+    })
