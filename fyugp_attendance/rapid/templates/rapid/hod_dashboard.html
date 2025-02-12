@@ -1,0 +1,238 @@
+{% load custom_filters %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HOD Dashboard - Rapid</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f4f4f4;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px;
+            position: fixed;
+            height: 100%;
+        }
+        .sidebar h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .sidebar ul {
+            list-style: none;
+            padding: 0;
+        }
+        .sidebar ul li {
+            padding: 10px;
+            margin-bottom: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .sidebar ul li a {
+            color: white;
+            text-decoration: none;
+            display: block;
+        }
+        .sidebar ul li:hover {
+            background-color: #1a252f;
+        }
+        .logout {
+            display: block;
+            margin-top: 20px;
+            text-align: center;
+            color: white;
+            text-decoration: none;
+            background: #e74c3c;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .logout:hover {
+            background: #c0392b;
+        }
+        .content {
+            margin-left: 270px;
+            padding: 20px;
+            width: calc(100% - 270px);
+        }
+        h1 {
+            color: #2c3e50;
+        }
+        .section {
+            display: none;
+            margin-top: 20px;
+        }
+        .active {
+            display: block;
+        }
+        .table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        th, td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <h2>HOD Dashboard</h2>
+        <ul>
+            <li onclick="showSection('home')"><i class="fas fa-home"></i> <a href="#">Home</a></li>
+            <li onclick="showSection('students')"><i class="fas fa-user-graduate"></i> <a href="#">Students</a></li>
+            <li onclick="showSection('teachers')"><i class="fas fa-chalkboard-teacher"></i> <a href="#">Teachers</a></li>
+            <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="#">Courses</a></li>
+        </ul>
+        <a href="{% url 'logout' %}" class="logout">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content">
+        <!-- Home Section -->
+        <div id="home" class="section active">
+            <div class="hero">
+                <h1>Welcome to Rapid</h1>
+                <p>A Smart Attendance Management System for Four-Year UG Programs</p>
+            </div>
+            <div class="about">
+                <h2>About Rapid</h2>
+                <p><strong>Rapid</strong> is an advanced attendance management system designed specifically for **four-year undergraduate (UG) programs**. It helps **colleges and universities** efficiently track student attendance, manage courses, and assign teachers.</p>
+                <p>With **Rapid**, HODs, teachers, and administrators can easily manage student records, assign courses, and ensure a **smooth academic workflow**.</p>
+                <h3>Key Features:</h3>
+                <ul>
+                    <li>📌 Automated attendance tracking</li>
+                    <li>📌 Department-wise student and teacher management</li>
+                    <li>📌 Secure login for admins, HODs, and teachers</li>
+                    <li>📌 Easy-to-use course allocation system</li>
+                    <li>📌 Interactive and user-friendly dashboard</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Students Section -->
+        <div id="students" class="section">
+            <h2>Students in {{ department.department_name }}</h2>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>University Register Number</th>
+                    <th>Admission Number</th>
+                    <th>Program</th>
+                </tr>
+                {% for student in students %}
+                <tr>
+                    <td>{{ student.student_name }}</td>
+                    <td>{{ student.student_register_number }}</td>
+                    <td>{{ student.student_admission_number }}</td>
+                    <td>{{ student.program_id.program_name }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Teachers Section -->
+        <div id="teachers" class="section">
+            <h2>Teachers in {{ department.department_name }}</h2>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                </tr>
+                {% for teacher in teachers %}
+                <tr>
+                    <td>{{ teacher.teacher_name }}</td>
+                    <td>{{ teacher.email }}</td>
+                    <td>{{ teacher.phone }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+
+        <!-- Courses Section -->
+        <div id="courses" class="section">
+            <h2>Courses in {{ department.department_name }}</h2>
+            <table>
+                <tr>
+                    <th>Name</th>
+                    <th>Code</th>
+                    <th>Semester</th>
+                    <th>Credits</th>
+                    
+                    <th>Attendance</th>
+                </tr>
+                {% for course in courses %}
+                <tr>
+                    <td>
+                        <a href="{% url 'course_students' course.course_id %}" class="course-link">
+                            {{ course.course_title }}
+                        </a>
+                    </td>
+                    <td>{{ course.course_code }}</td>
+                    <td>{{ course.semester }}</td>
+                    <td>{{ course.credit }}</td>
+                    
+                    <td>
+                        {% if course in assigned_courses %}
+                        <a href="{% url 'take_attendance' course.course_id %}" class="attendance-button">Take Attendance</a>
+                        {% else %}
+                        <span class="disabled-button">Not Assigned</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <script>
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(sectionId).classList.add('active');
+        }
+    </script>
+
+</body>
+</html>

@@ -5,7 +5,8 @@ from .models import Program
 from .models import Department
 from .models import StudentCourse
 from .models import Teacher
-from .models import TeacherCourse
+from .models import TeacherCourse,AbsentDetails,HourDateCourse
+from django.contrib.auth.models import Group
 #from .models import Role
 #from .models import User
 
@@ -16,11 +17,12 @@ admin.site.register(Department)
 admin.site.register(StudentCourse)
 admin.site.register(Teacher)
 admin.site.register(TeacherCourse)
+
 #admin.site.register(Role)
 #admin.site.register(User)
 
 class CourseAdmin(admin.ModelAdmin):
-    list_display=('course_id','course_code','course_title','credit','department_id','strength','year_offered')
+    list_display=('course_id','course_code','course_title','credit','department_id','semester')
     
 class StudentAdmin(admin.ModelAdmin):
     list_display = (
@@ -44,7 +46,7 @@ class DepartmentAdmin(admin.ModelAdmin):
 class TeacherAdmin(admin.ModelAdmin):
     list_display = ('teacher_id', 'teacher_name', 'user', 'department_id', 'phone', 'email', 'gender')
     search_fields = ('teacher_name', 'email', 'phone')
-    list_filter = ('gender',)
+    list_filter = ('department', 'is_hod')
     
 """class RoleAdmin(admin.ModelAdmin):
     list_display = ('role_id', 'role_name')
@@ -64,3 +66,19 @@ class TeacherCourseAdmin(admin.ModelAdmin):
     list_display = ('id', 'teacher_id', 'course_id')  
     search_fields = ('teacher__id', 'course__id')  
     list_filter = ('course_id',)
+    
+# Customizing the admin interface for HourDateCourse model
+class HourDateCourseAdmin(admin.ModelAdmin):
+    list_display = ('course', 'teacher', 'date', 'hour', 'year')
+    search_fields = ('course__name', 'teacher__user__username', 'date')
+    list_filter = ('hour', 'year')
+
+admin.site.register(HourDateCourse, HourDateCourseAdmin)
+
+# Customizing the admin interface for AbsentDetails model
+class AbsentDetailsAdmin(admin.ModelAdmin):
+    list_display = ('student', 'hour_date_course', 'status')
+    search_fields = ('student__name', 'hour_date_course__course__name', 'hour_date_course__teacher__user__username')
+    list_filter = ('status',)
+
+admin.site.register(AbsentDetails, AbsentDetailsAdmin)

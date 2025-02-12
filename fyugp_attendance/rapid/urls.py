@@ -6,7 +6,7 @@ urlpatterns = [
     
     path('', views.landing, name='landing'),
     path('login/', views.login_view, name='login'),
-    path('signup/', views.signup_view, name='signup'),
+    
     path('admin-dashboard/', views.dashboard_view, name='admin_dashboard'),
     path('user-dashboard/', views.dashboard_view, name='user_dashboard'),
 
@@ -57,7 +57,12 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),
     
     path('course-students/<int:course_id>/', views.course_students, name='course_students'),
+    
+    path('hod-dashboard/', views.hod_dashboard, name='hod_dashboard'),
+
+    path('course/<int:course_id>/take-attendance/', views.take_attendance, name='take_attendance'),
+    
 
 
-
+   
 ]

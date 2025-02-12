@@ -1,95 +1,39 @@
-<div class="dashboard">
-    <h2>Welcome to Your Dashboard, {{ request.user.username }}!</h2>
+{% extends 'dashboard_base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block sidebar_title %}Teacher Dashboard{% endblock %}
+{% block sidebar_links %}
+    <li onclick="showSection('assigned-courses')"><i class="fas fa-book"></i> <a href="#">Assigned Courses</a></li>
+{% endblock %}
+{% block content %}
+    <h1>Welcome, {{ request.user.username }}</h1>
 
-    <div class="logout-container">
-        <a href="{% url 'logout' %}" class="logout-button">Logout</a>
-    </div>
-
-    <section class="assigned-courses">
-        <h3>Assigned Courses</h3>
+    <section id="assigned-courses" class="section active">
+        <h2>Assigned Courses</h2>
         {% if assigned_courses %}
-            <ul class="course-list">
+            <table>
+                <tr>
+                    <th>Course</th>
+                    <th>Code</th>
+                    <th>Take Attendance</th>
+                </tr>
                 {% for course in assigned_courses %}
-                    <li class="course-item">
-                        <a href="{% url 'course_students' course.course_id_id %}" class="course-link">
+                <tr>
+                    <td>
+                        <a href="{% url 'course_students' course.course_id_id %}">
                             {{ course.course_id.course_title }}
                         </a>
-                    </li>
+                    </td>
+                    <td>{{ course.course_id.course_code }}</td>
+                    <td>
+                        <a href="{% url 'take_attendance' course.course_id_id %}" class="attendance-button">
+                            Take Attendance
+                        </a>
+                    </td>
+                </tr>
                 {% endfor %}
-            </ul>
+            </table>
         {% else %}
-            <p class="no-courses">You are not assigned to any courses at the moment.</p>
+            <p>You are not assigned to any courses at the moment.</p>
         {% endif %}
     </section>
-</div>
-
-<style>
-    .dashboard {
-        font-family: Arial, sans-serif;
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        background: #f9f9f9;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        text-align: center;
-    }
-    
-    h2 {
-        color: #333;
-    }
-
-    .logout-container {
-        text-align: right;
-        margin-bottom: 10px;
-    }
-
-    .logout-button {
-        text-decoration: none;
-        background: #dc3545;
-        color: white;
-        padding: 8px 15px;
-        border-radius: 5px;
-        font-weight: bold;
-        transition: background 0.3s ease-in-out;
-    }
-
-    .logout-button:hover {
-        background: #a71d2a;
-    }
-    
-    .assigned-courses {
-        margin-top: 20px;
-    }
-    
-    .course-list {
-        list-style: none;
-        padding: 0;
-    }
-    
-    .course-item {
-        background: #ffffff;
-        margin: 10px 0;
-        padding: 15px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-    
-    .course-link {
-        text-decoration: none;
-        font-size: 18px;
-        color: #007bff;
-        font-weight: bold;
-        transition: color 0.3s ease-in-out;
-    }
-    
-    .course-link:hover {
-        color: #0056b3;
-    }
-    
-    .no-courses {
-        color: #777;
-        text-align: center;
-        font-style: italic;
-    }
-</style>
+{% endblock %}
