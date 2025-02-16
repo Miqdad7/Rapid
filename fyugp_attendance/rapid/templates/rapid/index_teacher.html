@@ -1,0 +1,107 @@
+{% extends 'dashboard_base.html' %}
+{% block title %}
+RAPID
+{% endblock %}
+
+{% block content %}
+<style>
+    /* General Styling */
+    .content {
+        max-width: 900px;
+        margin: 40px auto;
+        padding: 20px;
+        background: #ffffff;
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        font-family: 'Poppins', sans-serif;
+        color: #333;
+    }
+
+    /* Hero Section */
+    .hero {
+        text-align: center;
+        padding: 40px;
+        background: linear-gradient(135deg, #007bff, #0056b3);
+        color: #ffffff;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+
+    .hero p {
+        font-size: 22px;
+        font-weight: 500;
+        margin: 0;
+    }
+
+    /* About Section */
+    .about h2 {
+        font-size: 28px;
+        color: #0056b3;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .about p {
+        font-size: 16px;
+        line-height: 1.6;
+        color: #555;
+        text-align: justify;
+    }
+
+    .about strong {
+        color: #007bff;
+    }
+
+    /* Key Features List */
+    .about h3 {
+        font-size: 22px;
+        color: #333;
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    .about ul {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+    }
+
+    .about ul li {
+        font-size: 16px;
+        padding: 8px 0;
+        display: flex;
+        align-items: center;
+    }
+
+    .about ul li::before {
+        content: "✔";
+        color: #007bff;
+        font-size: 18px;
+        font-weight: bold;
+        margin-right: 8px;
+    }
+</style>
+
+<div class="content">
+    <!-- Home Section -->
+    <div id="home" class="section active">
+        <div class="hero">
+            <h2>Welcome RAPID</h2>
+            <p>A Smart Attendance Management System for Four-Year UG Programs</p>
+        </div>
+        <div class="about">
+            <h2>About Rapid</h2>
+            <p><strong>Rapid</strong> is an advanced attendance management system designed specifically for <strong>four-year undergraduate (UG) programs</strong>. It helps <strong>colleges and universities</strong> efficiently track student attendance, manage courses, and assign teachers.</p>
+            <p>With <strong>Rapid</strong>, HODs, teachers, and administrators can easily manage student records, assign courses, and ensure a <strong>smooth academic workflow</strong>.</p>
+            <h3>Key Features:</h3>
+            <ul>
+                <li> Automated attendance tracking</li>
+                <li> Department-wise student and teacher management</li>
+                <li> Secure login for admins, HODs, and teachers</li>
+                <li> Easy-to-use course allocation system</li>
+                <li> Interactive and user-friendly dashboard</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

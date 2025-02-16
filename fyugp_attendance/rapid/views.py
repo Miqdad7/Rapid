@@ -23,7 +23,12 @@ def calculate_year(current_date):
 # Landing Page
 def landing(request):
     return render(request, 'rapid/landing.html')
-
+@login_required
+def index(request):
+    return render(request, 'rapid/index.html')
+@login_required
+def index_teacher(request):
+    return render(request, 'rapid/index_teacher.html')
 # Login Page
 """def login_view(request):
     if request.method == 'POST':
@@ -79,7 +84,7 @@ def login_view(request):
                 if teacher.is_hod:
                     return redirect('hod_dashboard')  # Redirect HODs
                 else:
-                    return redirect('user_dashboard')  # Redirect normal teachers
+                    return redirect('index_teacher')  # Redirect normal teachers
             except Teacher.DoesNotExist:
                 return render(request, 'rapid/login.html', {'error': 'Unauthorized access'})  
 
@@ -106,6 +111,7 @@ def custom_logout(request):
         return render(request, 'rapid/admin_dashboard.html')
     else:
         return render(request, 'rapid/user_dashboard.html')"""
+@login_required
 def dashboard_view(request):
     if request.user.is_superuser:  # Admin dashboard
         return render(request, 'rapid/admin_dashboard.html')
@@ -146,7 +152,7 @@ def hod_dashboard(request):
             'assigned_courses':assigned_courses,
             'course_students': course_students,
         }
-        return render(request, 'rapid/hod_dashboard.html', context)
+        return render(request, 'rapid/index.html', context)
 
     except Teacher.DoesNotExist:
         return render(request, 'rapid/login.html', {'error': 'Unauthorized access'})
@@ -155,6 +161,7 @@ def hod_dashboard(request):
 
 
 # View for creating a new course
+@login_required
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST)
@@ -167,6 +174,7 @@ def create_course(request):
     return render(request, 'rapid/create_course.html', {'form': form})
 
 # View for creating a new student
+@login_required
 def create_student(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -179,6 +187,7 @@ def create_student(request):
     return render(request, 'rapid/create_student.html', {'form': form})
 
 # View for creating a new program
+@login_required
 def create_program(request):
     if request.method == 'POST':
         form = ProgramForm(request.POST)
@@ -191,6 +200,7 @@ def create_program(request):
     return render(request, 'rapid/create_program.html', {'form': form})
 
 # View for creating a new department
+@login_required
 def create_department(request):
     if request.method == 'POST':
         form = DepartmentForm(request.POST)
@@ -216,6 +226,7 @@ def create_department(request):
     return render(request, 'rapid/create_program_level.html', {'form': form})"""
 
 # View for creating a new teacher
+@login_required
 def create_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
@@ -227,6 +238,7 @@ def create_teacher(request):
     
     return render(request, 'rapid/create_teacher.html', {'form': form})
 
+@login_required
 def enroll_student(request):
     if request.method == 'POST':
         form = StudentCourseForm(request.POST)
@@ -238,7 +250,8 @@ def enroll_student(request):
 
     return render(request, 'rapid/enroll_student.html', {'form': form})
 
-def assign_teacher(request):
+
+"""def assign_teacher(request):
     if request.method == 'POST':
         form = TeacherCourseForm(request.POST)
         if form.is_valid():
@@ -246,6 +259,37 @@ def assign_teacher(request):
             return redirect('assign_teacher_list')  # Replace with your success URL
     else:
         form = TeacherCourseForm()
+
+    return render(request, 'rapid/assign_teacher.html', {'form': form})"""
+@login_required
+def assign_teacher(request):
+    user = request.user
+    
+    # Ensure the logged-in user is an HOD
+    try:
+        hod = Teacher.objects.get(user_id=user, is_hod=True)
+    except Teacher.DoesNotExist:
+        messages.error(request, "You are not authorized to assign courses.")
+        return redirect('hod_dashboard')  # Redirect HOD to their dashboard
+
+    if request.method == 'POST':
+        form = TeacherCourseForm(request.POST)
+        if form.is_valid():
+            teacher = form.cleaned_data['teacher_id']
+            course = form.cleaned_data['course_id']
+
+            # Ensure that the selected teacher and course belong to the HOD's department
+            if teacher.department_id != hod.department_id or course.department_id != hod.department_id:
+                messages.error(request, "You can only assign teachers and courses from your department.")
+            else:
+                form.save()
+                messages.success(request, f"{teacher.teacher_name} assigned to {course.course_title}.")
+                return redirect('assign_teacher_list')  # Redirect to success page
+    else:
+        # Limit form choices to only the HOD's department teachers and courses
+        form = TeacherCourseForm()
+        form.fields['teacher_id'].queryset = Teacher.objects.filter(department_id=hod.department_id)
+        form.fields['course_id'].queryset = Course.objects.filter(department_id=hod.department_id)
 
     return render(request, 'rapid/assign_teacher.html', {'form': form})
 
@@ -276,22 +320,26 @@ def create_user(request):
 # Optional: List views for each model (e.g., Course, Student, etc.)
 
 # List view for all courses
+@login_required
 def course_list(request):
     courses = Course.objects.all()  # Fetch all courses from the database
     return render(request, 'rapid/course_list.html', {'courses': courses})
 
 
 # List view for all students
+@login_required
 def student_list(request):
     students = Student.objects.all()  # Fetch all students from the database
     return render(request, 'rapid/student_list.html', {'students': students})
 
 # List view for all programs
+@login_required
 def program_list(request):
     programs = Program.objects.all()  # Fetch all programs from the database
     return render(request, 'rapid/program_list.html', {'programs': programs})
 
 # List view for all departments
+@login_required
 def department_list(request):
     departments = Department.objects.all()  # Fetch all departments from the database
     return render(request, 'rapid/department_list.html', {'departments': departments})
@@ -304,17 +352,38 @@ def department_list(request):
     return render(request, 'rapid/program_level_list.html', {'program_levels': program_levels})"""
 
 # List view for all teachers
+@login_required
 def teacher_list(request):
     teachers = Teacher.objects.all()  # Fetch all teachers from the database
     return render(request, 'rapid/teacher_list.html', {'teachers': teachers})
 
+@login_required
 def enroll_student_list(request):
     enrollments = StudentCourse.objects.select_related('student_id', 'course_id').all()
     return render(request, 'rapid/enroll_student_list.html', {'enrollments': enrollments})
 
+"""@login_required
 def assign_teacher_list(request):
     assigns = TeacherCourse.objects.select_related('teacher_id', 'course_id').all()
-    return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns})
+    return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns})"""
+@login_required
+def assign_teacher_list(request):
+    user = request.user
+
+    # Ensure the logged-in user is an HOD
+    try:
+        hod = Teacher.objects.get(user_id=user, is_hod=True)
+    except Teacher.DoesNotExist:
+        messages.error(request, "You are not authorized to view assigned courses.")
+        return redirect('hod_dashboard')  # Redirect unauthorized users
+    department=hod.department_id
+
+    # Get only assignments related to the HOD's department
+    assigns = TeacherCourse.objects.filter(
+        teacher_id__department_id=hod.department_id
+    ).select_related('teacher_id', 'course_id')
+
+    return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns, 'department': department})
 # List view for all roles
 """def role_list(request):
     roles = Role.objects.all()  # Fetch all roles from the database
@@ -327,6 +396,7 @@ def user_list(request):
 
 #editting tables
 
+@login_required
 def edit_course(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == "POST":
@@ -340,6 +410,7 @@ def edit_course(request, pk):
         form = CourseForm(instance=course)
     return render(request, 'rapid/edit_course.html', {'form': form})
 
+@login_required
 def edit_teacher(request, pk):
     # Retrieve the teacher object by its ID
     teacher = get_object_or_404(Teacher, pk=pk)
@@ -356,6 +427,7 @@ def edit_teacher(request, pk):
 
     return render(request, 'rapid/edit_teacher.html', {'form': form})
 
+@login_required
 def edit_program(request, pk):
     program = get_object_or_404(Program, pk=pk)
     if request.method == "POST":
@@ -369,6 +441,7 @@ def edit_program(request, pk):
         form = ProgramForm(instance=program)
     return render(request, 'rapid/edit_program.html', {'form': form})
 
+@login_required
 def edit_student(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == "POST":
@@ -382,6 +455,7 @@ def edit_student(request, pk):
         form = StudentForm(instance=student)
     return render(request, 'rapid/edit_student.html', {'form': form})
 
+@login_required
 def edit_department(request, pk):
     department = get_object_or_404(Department, pk=pk)
     if request.method == "POST":
@@ -395,6 +469,7 @@ def edit_department(request, pk):
         form = DepartmentForm(instance=department)
     return render(request, 'rapid/edit_department.html', {'form': form})
 
+@login_required
 def edit_studentCourse(request, pk):
     studentCourse = get_object_or_404(StudentCourse, pk=pk)
     if request.method == "POST":
@@ -408,6 +483,7 @@ def edit_studentCourse(request, pk):
         form = StudentCourseForm(instance=studentCourse)
     return render(request, 'rapid/edit_enroll_student_list.html', {'form': form})
 
+"""@login_required
 def edit_teacherCourse(request, pk):
     teacherCourse = get_object_or_404(TeacherCourse, pk=pk)
     if request.method == "POST":
@@ -419,16 +495,52 @@ def edit_teacherCourse(request, pk):
             print("Form Errors:", form.errors)  # Debug form validation issues
     else:
         form = TeacherCourseForm(instance=teacherCourse)
+    return render(request, 'rapid/edit_assign_teacher.html', {'form': form})"""
+@login_required
+def edit_teacherCourse(request, pk):
+    teacherCourse = get_object_or_404(TeacherCourse, pk=pk)
+
+    # Ensure only HOD can edit
+    if not request.user.is_staff and not request.user.teacher.is_hod:
+        messages.error(request, "You are not authorized to edit course assignments.")
+        return redirect('assign_teacher_list')
+
+    # Get HOD's department
+    hod_department = request.user.teacher.department_id  
+
+    if request.method == "POST":
+        form = TeacherCourseForm(request.POST, instance=teacherCourse)
+
+        if form.is_valid():
+            # Ensure only department-specific courses and teachers are assigned
+            teacher = form.cleaned_data['teacher_id']
+            course = form.cleaned_data['course_id']
+
+            if teacher.department_id != hod_department or course.department_id != hod_department:
+                messages.error(request, "You can only assign teachers and courses within your department.")
+            else:
+                form.save()
+                messages.success(request, "Teacher assignment updated successfully.")
+                return redirect('assign_teacher_list')
+        else:
+            messages.error(request, "There was an issue with your submission.")
+    else:
+        form = TeacherCourseForm(instance=teacherCourse)
+
+        # Filter the teacher and course fields
+        form.fields['teacher_id'].queryset = Teacher.objects.filter(department_id=hod_department)
+        form.fields['course_id'].queryset = Course.objects.filter(department_id=hod_department)
+
     return render(request, 'rapid/edit_assign_teacher.html', {'form': form})
 
-
 #deleting tables
+@login_required
 def delete_course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     course.delete()
     return redirect('course_list')
 
-
+@login_required
 def delete_teacher(request, teacher_id):
     # Get the teacher object by its ID
     teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
@@ -443,26 +555,31 @@ def delete_teacher(request, teacher_id):
 
     #return render(request, 'delete_teacher.html', {'teacher': teacher})
     
+@login_required
 def delete_program(request, program_id):
     program = get_object_or_404(Program, pk=program_id)
     program.delete()
     return redirect('program_list')
 
+@login_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     student.delete()
     return redirect('student_list')
 
+@login_required
 def delete_department(request, department_id):
     department = get_object_or_404(Department, pk=department_id)
     department.delete()
     return redirect('department_list')
 
+@login_required
 def delete_studentCourse(request, id):
     studentCourse = get_object_or_404(StudentCourse, pk=id)
     studentCourse.delete()
     return redirect('enroll_student_list')
 
+@login_required
 def delete_teacherCourse(request, id):
     teacherCourse = get_object_or_404(TeacherCourse, pk=id)
     teacherCourse.delete()
@@ -470,14 +587,189 @@ def delete_teacherCourse(request, id):
 
 
 
-
+@login_required
 def course_students(request, course_id):
     # Fetch the students enrolled in the selected course
     course = get_object_or_404(Course, course_id=course_id)
     student_course_list = StudentCourse.objects.filter(course_id=course_id)
     return render(request, 'rapid/course_students.html', {'student_course_list': student_course_list,'course': course})
 
+@login_required
+def course_students_teacher(request, course_id):
+    # Fetch the students enrolled in the selected course
+    course = get_object_or_404(Course, course_id=course_id)
+    student_course_list = StudentCourse.objects.filter(course_id=course_id)
+    return render(request, 'rapid/course_students_teacher.html', {'student_course_list': student_course_list,'course': course})
 
+@login_required
+def student_list_hod(request):
+    # Get the logged-in teacher's department
+    teacher = Teacher.objects.get(user_id=request.user)
+    department = teacher.department_id
+    
+    # Filter students based on the department
+    students = Student.objects.filter(program_id__department_id=department).order_by('student_register_number')
+    
+    return render(request, 'rapid/student_list_hod.html', {'students': students, 'department':department})
+
+@login_required
+def add_student(request):
+    if request.method == 'POST':
+        form = StudentForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the student record to the database
+            return redirect('student_list_hod')  # Redirect to student list page
+    else:
+        form = StudentForm()  # Create an empty form instance for GET request
+    
+    return render(request, 'rapid/add_student.html', {'form': form})
+
+@login_required
+def edit_student_hod(request, pk):
+    student = get_object_or_404(Student, pk=pk)
+    if request.method == "POST":
+        form = StudentForm(request.POST, instance=student)
+        if form.is_valid():
+            form.save()
+            return redirect('student_list_hod')
+        else:
+            print("Form Errors:", form.errors)  # Debug form validation issues
+    else:
+        form = StudentForm(instance=student)
+    return render(request, 'rapid/edit_student_hod.html', {'form': form})
+
+@login_required
+def teacher_list_hod(request):
+    # Get the logged-in teacher's department
+    teacher = Teacher.objects.get(user_id=request.user)
+    department = teacher.department_id
+    
+    # Filter students based on the department
+    teachers = Teacher.objects.filter(department_id=department)
+    
+    return render(request, 'rapid/teacher_list_hod.html', {'teachers': teachers, 'department':department})
+
+@login_required
+def add_teacher(request):
+    if request.method == 'POST':
+        form = TeacherForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the teacher to the database
+            return redirect('teacher_list_hod')  # Redirect to teacher list page
+    else:
+        form = TeacherForm()
+    
+    return render(request, 'rapid/add_teacher.html', {'form': form})
+
+@login_required
+def edit_teacher_hod(request, pk):
+    # Retrieve the teacher object by its ID
+    teacher = get_object_or_404(Teacher, pk=pk)
+
+    if request.method == 'POST':
+        form = TeacherForm(request.POST, instance=teacher)
+        if form.is_valid():
+            # Save the teacher instance and the related user information
+            form.save()
+            messages.success(request, "Teacher information updated successfully!")
+            return redirect('teacher_list_hod')  # Redirect to the teacher list or another page
+    else:
+        form = TeacherForm(instance=teacher)
+
+    return render(request, 'rapid/edit_teacher_hod.html', {'form': form})
+
+"""def course_list_hod(request):
+    teacher = Teacher.objects.get(user_id=request.user)
+    department = teacher.department_id
+    user = request.user
+
+    if teacher.is_hod:  # Check if the teacher is an HOD using the is_hod field
+        courses = Course.objects.filter(department_id=teacher.department_id)
+    else:
+        teacher_courses = TeacherCourse.objects.filter(teacher_id=teacher)
+        courses = Course.objects.filter(course_id__in=teacher_courses.values('course'))
+
+    teachers = Teacher.objects.filter(department_id=department)
+
+    # List of students for each course (only for HOD)
+    course_students = {}
+    if teacher.is_hod:
+        for course in courses:
+            students = StudentCourse.objects.filter(course_id=course).values('student_id__student_name')
+            course_students[course] = students
+
+    return render(request, 'rapid/course_list_hod.html', {
+        'teachers': teachers,
+        'department': department,
+        'courses': courses,
+        'course_students': course_students if teacher.is_hod else None,
+    })"""
+@login_required
+def course_list_hod(request):
+    teacher = Teacher.objects.get(user_id=request.user)  # Fetch teacher based on user
+    department = teacher.department_id
+    user = request.user
+
+    # Fetch courses based on the teacher role
+    if teacher.is_hod:  
+        courses = Course.objects.filter(department_id=teacher.department_id)
+        hod_courses = TeacherCourse.objects.filter(teacher_id=teacher).values_list('course_id', flat=True)  
+    else:
+        teacher_courses = TeacherCourse.objects.filter(teacher_id=teacher)
+        courses = Course.objects.filter(course_id__in=teacher_courses.values('course'))
+        hod_courses = []
+
+    teachers = Teacher.objects.filter(department_id=department)
+
+    # Fetch students for each course (only if the teacher is an HOD)
+    course_students = {}
+    if teacher.is_hod:
+        for course in courses:
+            students = StudentCourse.objects.filter(course_id=course).values('student_id__student_name')
+            course_students[course] = students
+
+    return render(request, 'rapid/course_list_hod.html', {
+        'teachers': teachers,
+        'department': department,
+        'courses': courses,
+        'course_students': course_students if teacher.is_hod else None,
+        'hod_courses': hod_courses,  # List of courses assigned to HOD
+        'is_hod':teacher.is_hod
+        
+    })
+    
+@login_required
+def course_list_teacher(request):
+    teacher = get_object_or_404(Teacher, user_id=request.user)  # Fetch teacher based on user
+    assigned_courses = TeacherCourse.objects.filter(teacher_id=teacher).values_list('course_id', flat=True)
+    courses = Course.objects.filter(course_id__in=assigned_courses)
+
+    course_students = {}
+    for course in courses:
+        students = StudentCourse.objects.filter(course_id=course).select_related('student_id')
+        course_students[course.course_id] = students
+
+    return render(request, 'rapid/course_list_teacher.html', {
+        'courses': courses,
+        'course_students': course_students,
+    })
+
+
+@login_required
+def add_course(request):
+    if request.method == 'POST':
+        form = CourseForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the new course to the database
+            return redirect('course_list_hod')  # Redirect to course list page
+    else:
+        form = CourseForm()  # Create an empty form instance for GET request
+    
+    return render(request, 'rapid/add_course.html', {'form': form})
+
+
+
+@login_required
 def take_attendance(request, course_id):
     # Get the logged-in teacher
     teacher = request.user.teacher  # Assuming the user is a teacher
@@ -485,10 +777,7 @@ def take_attendance(request, course_id):
     # Get the course assigned to the teacher
     course = get_object_or_404(Course, course_id=course_id)
 
-    # Ensure that the logged-in teacher is assigned to the course
-    """if not TeacherCourse.objects.filter(teacher=teacher, course=course).exists():
-        messages.error(request, "You are not authorized to take attendance for this course.")
-        return redirect('course_list')  # Redirect if the teacher is not authorized"""
+    
 
     # Get all students assigned to this course
     student_courses = StudentCourse.objects.filter(course_id=course)
@@ -516,11 +805,11 @@ def take_attendance(request, course_id):
                 messages.success(request, f"Attendance successfully recorded for Hour {hour}")
             except IntegrityError:
                 # Handle the case where the HourDateCourse entry already exists
-                existing_record = HourDateCourse.objects.get(course_id=course, date=attendance_date, hour=int(hour))
+                existing_record = HourDateCourse.objects.get(course=course, date=attendance_date, hour=int(hour))
                 existing_teacher = existing_record.teacher
 
                 # Get teacher details (first name, last name, phone number) from the related user model
-                teacher_full_name = f"{existing_teacher.user_id.teacher_name}"
+                teacher_full_name = f"{existing_teacher.user_id.teacher}"
                 teacher_phone = existing_teacher.phone
 
                 # Format the message with teacher name and phone
@@ -539,9 +828,9 @@ def take_attendance(request, course_id):
 
         
         if teacher.is_hod:
-            return redirect('hod_dashboard')  # Redirect to HOD dashboard
+            return redirect('course_list_hod')  # Redirect to HOD dashboard
         else:
-            return redirect('user_dashboard')  # Redirect to Teacher dashboard
+            return redirect('course_list_teacher')  # Redirect to Teacher dashboard
 
     return render(request, 'rapid/take_attendance.html', {
         'course': course,
@@ -549,3 +838,60 @@ def take_attendance(request, course_id):
         'today': date.today(),
         'hours': range(1, 6),  # Provide hours from 1 to 5
     })
+
+@login_required
+def attendance_report(request, course_id):
+    course = Course.objects.get(course_id=course_id)
+    total_hours = HourDateCourse.objects.filter(course=course).count()
+
+    # Fetch students from the StudentCourse table, which links students to courses
+    student_courses = StudentCourse.objects.filter(course_id=course)
+    students = Student.objects.filter(student_id__in=student_courses.values_list('student_id', flat=True))
+
+    # Fetch attendance records for the course
+    attendance_records = AbsentDetails.objects.filter(hour_date_course__course=course)
+
+    # Get the current date and time
+    date_time = datetime.now()
+
+    attendance_data = []
+    for student in students:
+        total_present = 0
+        total_absent = 0
+        
+        # Iterate through each HourDateCourse for the course
+        for hour_date_course in HourDateCourse.objects.filter(course=course):
+            # Check if there is an attendance record for the student for this hour_date_course
+            attendance_record = attendance_records.filter(student=student, hour_date_course=hour_date_course).first()
+            
+            if attendance_record:  # If there is an attendance record
+                if attendance_record.status:  # Mark present if status is True
+                    total_present += 1
+                else:  # Mark absent if status is False
+                    total_absent += 1
+            else:  # If no attendance record exists, consider the student as present
+                total_present += 1
+        
+        # Calculate attendance percentage
+        attendance_percentage = (total_present / total_hours) * 100 if total_hours else 0
+
+        # Add grace hours logic if applicable
+        attendance_with_grace = attendance_percentage  # Adjust this if grace hours apply
+
+        attendance_data.append({
+            "student": student,
+            "total_present": total_present,
+            "total_absent": total_absent,
+            "attendance_percentage": round(attendance_percentage, 2),
+            "attendance_with_grace": round(attendance_with_grace, 2),
+        })
+
+    context = {
+        "course": course,
+        "total_hours": total_hours,
+        "attendance_data": attendance_data,
+        "date_time": date_time,  # Pass the current date and time to the template
+        
+    }
+
+    return render(request, 'rapid/report.html', context)

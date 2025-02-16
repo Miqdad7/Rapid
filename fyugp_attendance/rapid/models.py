@@ -147,8 +147,8 @@ class HourDateCourse(models.Model):
         (4, 'Hour 4'),
         (5, 'Hour 5'),
     ]
-    course = models.ForeignKey("Course", on_delete=models.CASCADE)
-    teacher = models.ForeignKey("Teacher", on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
     date = models.DateField()
     hour = models.PositiveSmallIntegerField(choices=HOUR_CHOICES)  # Restrict to valid choices
     year = models.PositiveIntegerField(editable=False)  # Year is non-editable

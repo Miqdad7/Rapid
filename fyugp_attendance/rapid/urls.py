@@ -6,7 +6,8 @@ urlpatterns = [
     
     path('', views.landing, name='landing'),
     path('login/', views.login_view, name='login'),
-    
+    path('index', views.index, name='index'),
+    path('index-teacher', views.index_teacher, name='index_teacher'),
     path('admin-dashboard/', views.dashboard_view, name='admin_dashboard'),
     path('user-dashboard/', views.dashboard_view, name='user_dashboard'),
 
@@ -57,12 +58,21 @@ urlpatterns = [
     path('logout/', views.custom_logout, name='logout'),
     
     path('course-students/<int:course_id>/', views.course_students, name='course_students'),
+    path('course-students-teacher/<int:course_id>/', views.course_students_teacher, name='course_students_teacher'),
     
     path('hod-dashboard/', views.hod_dashboard, name='hod_dashboard'),
 
     path('course/<int:course_id>/take-attendance/', views.take_attendance, name='take_attendance'),
     
-
-
+    path('students-list-hod/', views.student_list_hod, name='student_list_hod'),
+    path('students-add/', views.add_student, name='add_student'),
+    path('edit-student-hod/<int:pk>/', views.edit_student_hod, name='edit_student_hod'),
+    path('teacher-list-hod/', views.teacher_list_hod, name='teacher_list_hod'),
+    path('add-teacher/', views.add_teacher, name='add_teacher'),
+    path('edit-teacher-hod/<int:pk>/', views.edit_teacher_hod, name='edit_teacher_hod'),
+    path('course-list-hod', views.course_list_hod, name='course_list_hod'),
+    path('course-list-teacher', views.course_list_teacher, name='course_list_teacher'),
+    path('add-course/', views.add_course, name='add_course'),
+    path('attendance/report/<int:course_id>/', views.attendance_report, name='attendance_report'),
    
 ]
