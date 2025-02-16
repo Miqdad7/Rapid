@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Report</title>
+    <style>
+        /* Global Styles */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7fc;
+            color: #2c3e50;
+            margin: 0;
+            padding: 0;
+        }
+
+        .report-container {
+            max-width: 850px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Header Styling */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 26px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .header h2 {
+            font-size: 18px;
+            font-weight: 500;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        /* Info Table Styling */
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .info-table th {
+            background: #2c3e50;
+            color: white;
+            text-align: left;
+            padding: 12px;
+            font-weight: 600;
+            width: 30%;
+        }
+
+        .info-table td {
+            background: #f9f9f9;
+            padding: 12px;
+            font-weight: 500;
+        }
+
+        /* Attendance Table Styling */
+        .attendance-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+
+        .attendance-table th {
+            background: #34495e;
+            color: white;
+            padding: 14px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .attendance-table td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .attendance-table tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        .attendance-table tr:hover {
+            background: #ecf0f1;
+        }
+
+        /* Footer and Buttons */
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .print-btn, .back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            border: none;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .print-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .print-btn:hover {
+            background: #c0392b;
+        }
+
+        .back-btn {
+            background: #007bff;
+            color: white;
+            margin-left: 10px;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #007bff;
+            border: 2px solid #007bff;
+        }
+
+        /* Print Styling */
+        @media print {
+            .print-btn, .back-btn {
+                display: none;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .report-container {
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 20px !important;
+                box-shadow: none !important;
+            }
+
+            .attendance-table th {
+                background-color: black !important;
+                color: white !important;
+            }
+
+            .attendance-table tr:nth-child(even) {
+                background-color: #f0f0f0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="report-container">
+        <div class="header">
+            <h1>Nehru Arts and Science College, Kanhangad</h1>
+            <h2>Attendance Report - NASC-SMS-FYUGP</h2>
+        </div>
+
+        <table class="info-table">
+            <tbody>
+                <tr>
+                    <th>Course</th>
+                    <td>{{ course.course_code }} - {{ course.course_title }}</td>
+                </tr>
+                <tr>
+                    <th>Total Hours Taken</th>
+                    <td>{{ total_hours }}</td>
+                </tr>
+                <tr>
+                    <th>Date & Time</th>
+                    <td>{{ date_time|date:"Y-m-d H:i:s" }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>Sl No</th>
+                    <th>Reg. No</th>
+                    <th>Name</th>
+                    <th>No. of Hours Present</th>
+                    <th>% of Attendance</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in attendance_data %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ data.student.student_register_number }}</td>
+                    <td>{{ data.student.student_name }}</td>
+                    <td>{{ data.total_present }}</td>
+                    <td>{{ data.attendance_percentage }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="footer">
+            <button class="print-btn" onclick="window.print()">Print Report</button>
+            <button class="back-btn" onclick="history.back()">Back</button>
+            <p>&copy; {{ date_time.year }} Nehru Arts and Science College</p>
+        </div>
+    </div>
+</body>
+</html>

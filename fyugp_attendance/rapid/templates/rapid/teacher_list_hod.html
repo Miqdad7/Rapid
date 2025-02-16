@@ -1,18 +1,18 @@
 {% extends 'hod_dashboard_base.html' %}
 
-{% block title %}Assigned Teachers{% endblock %}
+{% block title %}Teacher List{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="card shadow-lg">
         <div class="card-header bg-primary text-white text-center">
-            <h2>Department of {{ department }} - Assigned Teachers</h2>
+            <h2>Department of {{ department }} - Teachers</h2>
         </div>
         <div class="card-body">
             
             <div class="mb-3 text-end">
-                <a href="{% url 'assign_teacher' %}" class="btn btn-success">
-                    <i class="fas fa-user-plus"></i> Assign Teacher
+                <a href="{% url 'add_teacher' %}" class="btn btn-success">
+                    <i class="fas fa-user-plus"></i> Add Teacher
                 </a>
             </div>
 
@@ -20,30 +20,32 @@
                 <table class="table table-striped table-hover">
                     <thead class="table-dark">
                         <tr>
-                            <th>Teacher</th>
-                            <th>Course</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Mobile Number</th>
                             <th class="text-center">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for assign in assigns %}
+                        {% for teacher in teachers %}
                         <tr>
-                            <td>{{ assign.teacher_id.teacher_name }}</td>
-                            <td>{{ assign.course_id.course_title }}</td>
+                            <td>{{ teacher.teacher_name }}</td>
+                            <td>{{ teacher.email }}</td>
+                            <td>{{ teacher.phone }}</td>
                             <td class="text-center">
-                                <a href="{% url 'edit_teacherCourse' assign.pk %}" class="btn btn-warning btn-sm">
+                                <a href="{% url 'edit_teacher_hod' teacher.pk %}" class="btn btn-warning btn-sm">
                                     <i class="fas fa-edit"></i> Edit
                                 </a>
-                                <a href="{% url 'delete_teacherCourse' assign.id %}" 
+                                <a href="{% url 'delete_teacher' teacher.teacher_id %}" 
                                    class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Are you sure you want to delete this assignment?');">
+                                   onclick="return confirm('Are you sure you want to delete this teacher?');">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </a>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="3" class="text-center text-muted">No teacher-course assignments found.</td>
+                            <td colspan="4" class="text-center text-muted">No teachers found.</td>
                         </tr>
                         {% endfor %}
                     </tbody>

@@ -1,0 +1,75 @@
+{% extends "hod_dashboard_base.html" %}
+
+{% block title %}Edit Teacher{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Edit Teacher: {{ teacher.teacher_name }}</h2>
+
+    {% if form.errors %}
+    <div class="alert alert-danger">
+        <p>There were some issues with your submission. Please check below:</p>
+    </div>
+    {% endif %}
+
+    <form method="POST">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+
+        <div class="mb-3">
+            <label for="teacher_id" class="form-label">Teacher ID</label>
+            {{ form.teacher_id }}
+            <div class="text-danger">{{ form.teacher_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="teacher_name" class="form-label">Teacher Name</label>
+            {{ form.teacher_name }}
+            <div class="text-danger">{{ form.teacher_name.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="department_id" class="form-label">Department</label>
+            {{ form.department_id }}
+            <div class="text-danger">{{ form.department_id.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="phone" class="form-label">Phone</label>
+            {{ form.phone }}
+            <div class="text-danger">{{ form.phone.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            {{ form.email }}
+            <div class="text-danger">{{ form.email.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="gender" class="form-label">Gender</label>
+            {{ form.gender }}
+            <div class="text-danger">{{ form.gender.errors }}</div>
+        </div>
+
+        <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            {{ form.password }}
+            <div class="text-danger">{{ form.password.errors }}</div>
+            <small class="form-text text-muted">{{ form.password.help_text }}</small>
+        </div>
+
+        <div class="mb-3">
+            <label for="is_hod" class="form-label">HoD</label>
+            {{ form.is_hod }}
+            <div class="text-danger">{{ form.is_hod.errors }}</div>
+            <small class="form-text text-muted">{{ form.is_hod.help_text }}</small>
+        </div>
+
+        <div class="d-flex justify-content-between mt-4">
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="{% url 'teacher_list_hod' %}" class="btn btn-secondary">Back to Teacher List</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

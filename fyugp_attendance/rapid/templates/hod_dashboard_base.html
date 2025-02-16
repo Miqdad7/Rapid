@@ -116,11 +116,16 @@
 
     <!-- Sidebar -->
     <div class="sidebar">
-        <h2>{% block sidebar_title %}Dashboard{% endblock %}</h2>
+        <h2>{% block sidebar_title %}HOD Dashboard{% endblock %}</h2>
         <ul>
-            <li ><i class="fas fa-home"></i> <a href="{% url 'index_teacher' %}">Home</a></li>
-                      
-            <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="{% url 'course_list_teacher' %}">Courses</a></li>
+            <li ><i class="fas fa-home"></i> <a href="{% url 'index' %}">Home</a></li>
+            <li class="nav-item"><i class="fas fa-user-graduate"></i>
+                <a class="nav-link" href="{% url 'student_list_hod' %}">Student</a>
+            </li>
+            <li class="nav-item"><i class="fas fa-chalkboard-teacher"></i> <a href="{% url 'teacher_list_hod' %}">Teachers</a></li>
+            <li class="nav-item"><i class="fas fa-chalkboard-teacher"></i> <a href="{% url 'assign_teacher_list' %}">Assign Teachers</a></li>
+            <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="{% url 'course_list_hod' %}">Courses</a></li>
+            
         </ul>
         
         <a href="{% url 'logout' %}" class="logout">

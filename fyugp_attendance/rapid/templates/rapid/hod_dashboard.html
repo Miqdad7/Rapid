@@ -117,8 +117,10 @@
         <h2>HOD Dashboard</h2>
         <ul>
             <li onclick="showSection('home')"><i class="fas fa-home"></i> <a href="#">Home</a></li>
-            <li onclick="showSection('students')"><i class="fas fa-user-graduate"></i> <a href="#">Students</a></li>
-            <li onclick="showSection('teachers')"><i class="fas fa-chalkboard-teacher"></i> <a href="#">Teachers</a></li>
+            <li class="nav-item"><i class="fas fa-user-graduate"></i>
+                <a class="nav-link" href="{% url 'student_list_hod' %}">Student</a>
+            </li>
+            <li class="nav-item"><i class="fas fa-chalkboard-teacher"></i> <a href="{% url 'teacher_list_hod' %}">Teachers</a></li>
             <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="#">Courses</a></li>
         </ul>
         <a href="{% url 'logout' %}" class="logout">
@@ -149,46 +151,7 @@
             </div>
         </div>
 
-        <!-- Students Section -->
-        <div id="students" class="section">
-            <h2>Students in {{ department.department_name }}</h2>
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>University Register Number</th>
-                    <th>Admission Number</th>
-                    <th>Program</th>
-                </tr>
-                {% for student in students %}
-                <tr>
-                    <td>{{ student.student_name }}</td>
-                    <td>{{ student.student_register_number }}</td>
-                    <td>{{ student.student_admission_number }}</td>
-                    <td>{{ student.program_id.program_name }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
-        <!-- Teachers Section -->
-        <div id="teachers" class="section">
-            <h2>Teachers in {{ department.department_name }}</h2>
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                </tr>
-                {% for teacher in teachers %}
-                <tr>
-                    <td>{{ teacher.teacher_name }}</td>
-                    <td>{{ teacher.email }}</td>
-                    <td>{{ teacher.phone }}</td>
-                </tr>
-                {% endfor %}
-            </table>
-        </div>
-
+        
         <!-- Courses Section -->
         <div id="courses" class="section">
             <h2>Courses in {{ department.department_name }}</h2>

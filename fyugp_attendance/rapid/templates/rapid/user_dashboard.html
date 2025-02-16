@@ -15,6 +15,7 @@
                     <th>Course</th>
                     <th>Code</th>
                     <th>Take Attendance</th>
+                    <th>Reports</th>
                 </tr>
                 {% for course in assigned_courses %}
                 <tr>
@@ -29,6 +30,11 @@
                             Take Attendance
                         </a>
                     </td>
+                    <td>
+                        <div class="mb-3">
+                          <a href="{% url 'attendance_report' course.course_id_id %}" class="btn btn-success">Summary Report</a>
+                        </div>            
+                      </td>
                 </tr>
                 {% endfor %}
             </table>
