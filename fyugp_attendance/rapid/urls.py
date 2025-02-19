@@ -74,5 +74,9 @@ urlpatterns = [
     path('course-list-teacher', views.course_list_teacher, name='course_list_teacher'),
     path('add-course/', views.add_course, name='add_course'),
     path('attendance/report/<int:course_id>/', views.attendance_report, name='attendance_report'),
+    path('teacher/attendance/', views.teacher_attendance_list, name='teacher_attendance_list'),
+    path('teacher/attendance/edit/<int:record_id>/', views.edit_attendance, name='edit_attendance'),
+    path('teacher/attendance/remove/<int:record_id>/', views.remove_attendance, name='remove_attendance'),
+    path('student-individual-report/<int:student_id>/', views.student_individual_report, name='student_individual_report'),
    
 ]
