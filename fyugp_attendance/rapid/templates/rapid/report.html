@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Attendance Report</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         /* Global Styles */
         body {
@@ -15,8 +16,8 @@
         }
 
         .report-container {
-            max-width: 850px;
-            margin: 40px auto;
+            max-width: 900px;
+            margin: 50px auto;
             padding: 30px;
             background: white;
             border-radius: 12px;
@@ -27,10 +28,12 @@
         .header {
             text-align: center;
             margin-bottom: 30px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 15px;
         }
 
         .header h1 {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
             color: #2c3e50;
             margin-bottom: 5px;
@@ -40,16 +43,13 @@
             font-size: 18px;
             font-weight: 500;
             color: #666;
-            margin-bottom: 15px;
         }
 
         /* Info Table Styling */
         .info-table {
             width: 100%;
             border-collapse: collapse;
-            margin-bottom: 20px;
-            border-radius: 8px;
-            overflow: hidden;
+            margin-bottom: 25px;
         }
 
         .info-table th {
@@ -58,7 +58,7 @@
             text-align: left;
             padding: 12px;
             font-weight: 600;
-            width: 30%;
+            width: 35%;
         }
 
         .info-table td {
@@ -73,7 +73,6 @@
             border-collapse: collapse;
             border-radius: 10px;
             overflow: hidden;
-            margin-top: 15px;
         }
 
         .attendance-table th {
@@ -105,10 +104,8 @@
             margin-top: 30px;
         }
 
-        .print-btn, .back-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
+        .btn {
+            display: inline-block;
             padding: 12px 20px;
             font-size: 16px;
             font-weight: 600;
@@ -143,7 +140,7 @@
 
         /* Print Styling */
         @media print {
-            .print-btn, .back-btn {
+            .btn {
                 display: none;
             }
 
@@ -211,15 +208,15 @@
                     <td>{{ data.student.student_register_number }}</td>
                     <td>{{ data.student.student_name }}</td>
                     <td>{{ data.total_present }}</td>
-                    <td>{{ data.attendance_percentage }}</td>
+                    <td>{{ data.attendance_percentage }}%</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
 
         <div class="footer">
-            <button class="print-btn" onclick="window.print()">Print Report</button>
-            <button class="back-btn" onclick="history.back()">Back</button>
+            <button class="btn print-btn" onclick="window.print()">Print Report</button>
+            <button class="btn back-btn" onclick="history.back()">Back</button>
             <p>&copy; {{ date_time.year }} Nehru Arts and Science College</p>
         </div>
     </div>

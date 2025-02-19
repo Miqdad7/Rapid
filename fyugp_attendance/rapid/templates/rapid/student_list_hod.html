@@ -45,6 +45,11 @@
                                    onclick="return confirm('Are you sure you want to delete this student?');">
                                     <i class="fas fa-trash-alt"></i> Delete
                                 </a>
+                                <a href="{% url 'student_individual_report' student.student_id %}" 
+                                    class="btn btn-info btn-sm text-white" title="View Detailed Report">
+                                    <i class="fas fa-file-alt"></i> Report
+                                </a>
+
                             </td>
                         </tr>
                         {% empty %}

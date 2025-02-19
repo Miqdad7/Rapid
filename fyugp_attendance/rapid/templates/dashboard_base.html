@@ -121,6 +121,7 @@
             <li ><i class="fas fa-home"></i> <a href="{% url 'index_teacher' %}">Home</a></li>
                       
             <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="{% url 'course_list_teacher' %}">Courses</a></li>
+            <li onclick="showSection('courses')"><i class="fas fa-book"></i> <a href="{% url 'teacher_attendance_list' %}">Attendance Taken</a></li>
         </ul>
         
         <a href="{% url 'logout' %}" class="logout">
