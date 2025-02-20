@@ -1,3 +1,4 @@
+
 {% load custom_filters %}
 <!DOCTYPE html>
 <html lang="en">
@@ -136,6 +137,13 @@
 
     <!-- Main Content -->
     <div class="content">
+        {% if messages %}
+        <div class="alert alert-warning">
+            {% for message in messages %}
+            <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% block content %}{% endblock %}
     </div>
     
