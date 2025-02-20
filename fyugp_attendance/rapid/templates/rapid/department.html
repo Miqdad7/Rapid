@@ -1,0 +1,54 @@
+{% extends 'hod_dashboard_base.html' %}
+
+{% block title %}Department Attendance Report{% endblock %}
+
+{% block extra_head %}
+<!-- Add any additional CSS or scripts if needed -->
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <h2 class="fw-bold">Attendance Report - {{ department.department_name }}</h2>
+    </div>
+    <p class="text-muted">Overview of student attendance records in the department.</p>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th class="text-center">#</th>
+                    <th>University Register Number</th>
+                    <th>Student Name</th>
+                    <th class="text-center">Total Hours Taken</th>
+                    <th class="text-center">Total Hours Present</th>
+                    <th class="text-center">Attendance Percentage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in students %}
+                    <tr>
+                        <td class="text-center">{{ forloop.counter }}</td>
+                        <td>{{ data.student.student_register_number }}</td>
+                        <td>{{ data.student.student_name }}</td>
+                        <td class="text-center">{{ data.total_hours_taken }}</td>
+                        <td class="text-center">{{ data.total_present }}</td>
+                        <td class="text-center">
+                            <span class="badge 
+                                {% if data.attendance_percentage >= 75 %} bg-success 
+                                {% elif data.attendance_percentage >= 50 %} bg-warning 
+                                {% else %} bg-danger {% endif %}">
+                                {{ data.attendance_percentage }}%
+                            </span>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="6" class="text-center text-muted">No student attendance records available.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
