@@ -79,5 +79,7 @@ urlpatterns = [
     path('teacher/attendance/remove/<int:record_id>/', views.remove_attendance, name='remove_attendance'),
     path('student-individual-report/<int:student_id>/', views.student_individual_report, name='student_individual_report'),
     path('department/<int:department_id>/', views.department_report, name='department_report'),
+    #path('students/upload/', views.upload_students, name='upload_students'),
+    #path('download_student_template/', views.download_student_template, name='download_student_template'),
    
 ]
