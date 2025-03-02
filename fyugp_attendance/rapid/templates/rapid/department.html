@@ -1,54 +1,86 @@
-{% extends 'hod_dashboard_base.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department Attendance Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .report-container {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .table thead {
+            background-color: #343a40;
+            color: #ffffff;
+        }
+        .btn-custom {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
+    <script>
+        function printReport() {
+            window.print();
+        }
+    </script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="report-container">
+            <h2 class="fw-bold mb-3">Attendance Report - {{ department.department_name }}</h2>
+            <p class="text-muted">Overview of student attendance records in the department.</p>
 
-{% block title %}Department Attendance Report{% endblock %}
-
-{% block extra_head %}
-<!-- Add any additional CSS or scripts if needed -->
-{% endblock %}
-
-{% block content %}
-<div class="container mt-4">
-    <div class="d-flex justify-content-between align-items-center">
-        <h2 class="fw-bold">Attendance Report - {{ department.department_name }}</h2>
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th class="text-center">#</th>
+                            <th>University Register Number</th>
+                            <th>Student Name</th>
+                            <th class="text-center">Total Hours Taken</th>
+                            <th class="text-center">Total Hours Present</th>
+                            <th class="text-center">Attendance Percentage</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for data in students %}
+                            <tr>
+                                <td class="text-center">{{ forloop.counter }}</td>
+                                <td>{{ data.student.student_register_number }}</td>
+                                <td>{{ data.student.student_name }}</td>
+                                <td class="text-center">{{ data.total_hours_taken }}</td>
+                                <td class="text-center">{{ data.total_present }}</td>
+                                <td class="text-center">
+                                    <span class="badge 
+                                        {% if data.attendance_percentage >= 75 %} bg-success 
+                                        {% elif data.attendance_percentage >= 50 %} bg-warning 
+                                        {% else %} bg-danger {% endif %}">
+                                        {{ data.attendance_percentage }}%
+                                    </span>
+                                </td>
+                            </tr>
+                        {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center text-muted">No student attendance records available.</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <button class="btn btn-primary btn-custom me-2" onclick="printReport()">🖨 Print Report</button>
+                <a href="{% url 'student_list_hod' %}" class="btn btn-secondary btn-custom">🔙 Back</a>
+            </div>
+        </div>
     </div>
-    <p class="text-muted">Overview of student attendance records in the department.</p>
 
-    <div class="table-responsive">
-        <table class="table table-bordered table-hover align-middle">
-            <thead class="table-dark">
-                <tr>
-                    <th class="text-center">#</th>
-                    <th>University Register Number</th>
-                    <th>Student Name</th>
-                    <th class="text-center">Total Hours Taken</th>
-                    <th class="text-center">Total Hours Present</th>
-                    <th class="text-center">Attendance Percentage</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for data in students %}
-                    <tr>
-                        <td class="text-center">{{ forloop.counter }}</td>
-                        <td>{{ data.student.student_register_number }}</td>
-                        <td>{{ data.student.student_name }}</td>
-                        <td class="text-center">{{ data.total_hours_taken }}</td>
-                        <td class="text-center">{{ data.total_present }}</td>
-                        <td class="text-center">
-                            <span class="badge 
-                                {% if data.attendance_percentage >= 75 %} bg-success 
-                                {% elif data.attendance_percentage >= 50 %} bg-warning 
-                                {% else %} bg-danger {% endif %}">
-                                {{ data.attendance_percentage }}%
-                            </span>
-                        </td>
-                    </tr>
-                {% empty %}
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">No student attendance records available.</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    </div>
-</div>
-{% endblock %}
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

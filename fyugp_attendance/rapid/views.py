@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render, redirect,HttpResponse
 from django.http import HttpResponseRedirect
 from django.urls import reverse
-from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm, HourDateCourseForm, AbsentDetailsForm
+from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm, HourDateCourseForm, AbsentDetailsForm, CSVUploadForm
 from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse, HourDateCourse, AbsentDetails
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
@@ -12,6 +12,9 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from datetime import date
 from datetime import datetime
 from django.db import IntegrityError
+from django.core.exceptions import PermissionDenied
+from functools import wraps
+import csv
 
 def calculate_year(current_date):
     """
@@ -22,6 +25,12 @@ def calculate_year(current_date):
         return current_date.year
     else:  # From January to May
         return current_date.year - 1
+    
+def clean_name(name):
+    """Standardize the name format: convert to uppercase and replace periods with spaces."""
+    return name.strip().replace('.', ' ').upper()
+
+    
 # Landing Page
 def landing(request):
     return render(request, 'rapid/landing.html')
@@ -31,44 +40,9 @@ def index(request):
 @login_required
 def index_teacher(request):
     return render(request, 'rapid/index_teacher.html')
-# Login Page
-"""def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if user.is_superuser:  # Redirect admin to admin dashboard
-                return redirect('admin_dashboard')
-            else:  # Redirect regular user to user dashboard
-                return redirect('user_dashboard')
-        else:
-            return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
 
-    return render(request, 'rapid/login.html')"""
-    
-"""def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password'] 
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            login(request, user)
-            if user.is_superuser:  # Admin
-                return redirect('admin_dashboard')
-            else:
-                try:
-                    # Check if the user is a teacher
-                    teacher = Teacher.objects.get(user_id=user)
-                    return redirect('user_dashboard')  # Redirect teacher to their dashboard
-                except Teacher.DoesNotExist:
-                    # If the user is not a teacher, handle accordingly
-                    return redirect('user_dashboard')  # Or another redirect if necessary
-        else:
-            return render(request, 'rapid/login.html', {'error': 'Invalid username or password'})
-    return render(request, 'rapid/login.html')"""
-    
+
+# Login Page    
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
@@ -96,23 +70,10 @@ def login_view(request):
     return render(request, 'rapid/login.html')
 
 
-
-
-
-
-
-
-
 def custom_logout(request):
     logout(request)
     return redirect('/login')
 
-"""def dashboard_view(request):
-    # Check if the user is a superuser (admin)
-    if request.user.is_superuser:
-        return render(request, 'rapid/admin_dashboard.html')
-    else:
-        return render(request, 'rapid/user_dashboard.html')"""
 @login_required
 def dashboard_view(request):
     if request.user.is_superuser:  # Admin dashboard
@@ -158,9 +119,6 @@ def hod_dashboard(request):
 
     except Teacher.DoesNotExist:
         return render(request, 'rapid/login.html', {'error': 'Unauthorized access'})
-
-
-
 
 # View for creating a new course
 @login_required
@@ -214,7 +172,6 @@ def create_department(request):
     
     return render(request, 'rapid/create_department.html', {'form': form})
 
-
 # View for creating a new program level
 """def create_program_level(request):
     if request.method == 'POST':
@@ -252,17 +209,6 @@ def enroll_student(request):
 
     return render(request, 'rapid/enroll_student.html', {'form': form})
 
-
-"""def assign_teacher(request):
-    if request.method == 'POST':
-        form = TeacherCourseForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('assign_teacher_list')  # Replace with your success URL
-    else:
-        form = TeacherCourseForm()
-
-    return render(request, 'rapid/assign_teacher.html', {'form': form})"""
 @login_required
 def assign_teacher(request):
     user = request.user
@@ -294,32 +240,6 @@ def assign_teacher(request):
         form.fields['course_id'].queryset = Course.objects.filter(department_id=hod.department_id)
 
     return render(request, 'rapid/assign_teacher.html', {'form': form})
-
-# View for creating a new role
-"""def create_role(request):
-    if request.method == 'POST':
-        form = RoleForm(request.POST)
-        if form.is_valid():
-            form.save()  # Save the role to the database
-            return redirect('role_list')  # Redirect to role list page
-    else:
-        form = RoleForm()
-    
-    return render(request, 'rapid/create_role.html', {'form': form})
-
-# View for creating a new user
-def create_user(request):
-    if request.method == 'POST':
-        form = UserForm(request.POST)
-        if form.is_valid():
-            form.save()  # Save the user to the database
-            return redirect('user_list')  # Redirect to user list page
-    else:
-        form = UserForm()
-    
-    return render(request, 'rapid/create_user.html', {'form': form})"""
-
-# Optional: List views for each model (e.g., Course, Student, etc.)
 
 # List view for all courses
 @login_required
@@ -364,10 +284,6 @@ def enroll_student_list(request):
     enrollments = StudentCourse.objects.select_related('student_id', 'course_id').all()
     return render(request, 'rapid/enroll_student_list.html', {'enrollments': enrollments})
 
-"""@login_required
-def assign_teacher_list(request):
-    assigns = TeacherCourse.objects.select_related('teacher_id', 'course_id').all()
-    return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns})"""
 @login_required
 def assign_teacher_list(request):
     user = request.user
@@ -485,19 +401,6 @@ def edit_studentCourse(request, pk):
         form = StudentCourseForm(instance=studentCourse)
     return render(request, 'rapid/edit_enroll_student_list.html', {'form': form})
 
-"""@login_required
-def edit_teacherCourse(request, pk):
-    teacherCourse = get_object_or_404(TeacherCourse, pk=pk)
-    if request.method == "POST":
-        form = TeacherCourseForm(request.POST, instance=teacherCourse)
-        if form.is_valid():
-            form.save()
-            return redirect('assign_teacher_list')
-        else:
-            print("Form Errors:", form.errors)  # Debug form validation issues
-    else:
-        form = TeacherCourseForm(instance=teacherCourse)
-    return render(request, 'rapid/edit_assign_teacher.html', {'form': form})"""
 @login_required
 def edit_teacherCourse(request, pk):
     teacherCourse = get_object_or_404(TeacherCourse, pk=pk)
@@ -582,12 +485,11 @@ def delete_studentCourse(request, id):
     return redirect('enroll_student_list')
 
 @login_required
+
 def delete_teacherCourse(request, id):
     teacherCourse = get_object_or_404(TeacherCourse, pk=id)
     teacherCourse.delete()
     return redirect('assign_teacher_list')
-
-
 
 @login_required
 def course_students(request, course_id):
@@ -680,32 +582,6 @@ def edit_teacher_hod(request, pk):
 
     return render(request, 'rapid/edit_teacher_hod.html', {'form': form})
 
-"""def course_list_hod(request):
-    teacher = Teacher.objects.get(user_id=request.user)
-    department = teacher.department_id
-    user = request.user
-
-    if teacher.is_hod:  # Check if the teacher is an HOD using the is_hod field
-        courses = Course.objects.filter(department_id=teacher.department_id)
-    else:
-        teacher_courses = TeacherCourse.objects.filter(teacher_id=teacher)
-        courses = Course.objects.filter(course_id__in=teacher_courses.values('course'))
-
-    teachers = Teacher.objects.filter(department_id=department)
-
-    # List of students for each course (only for HOD)
-    course_students = {}
-    if teacher.is_hod:
-        for course in courses:
-            students = StudentCourse.objects.filter(course_id=course).values('student_id__student_name')
-            course_students[course] = students
-
-    return render(request, 'rapid/course_list_hod.html', {
-        'teachers': teachers,
-        'department': department,
-        'courses': courses,
-        'course_students': course_students if teacher.is_hod else None,
-    })"""
 @login_required
 def course_list_hod(request):
     teacher = Teacher.objects.get(user_id=request.user)  # Fetch teacher based on user
@@ -756,7 +632,6 @@ def course_list_teacher(request):
         'course_students': course_students,
     })
 
-
 @login_required
 def add_course(request):
     if request.method == 'POST':
@@ -775,8 +650,6 @@ def add_course(request):
 def take_attendance(request, course_id):
     teacher = request.user.teacher
     course = get_object_or_404(Course, course_id=course_id)
-
-    
 
     student_courses = StudentCourse.objects.filter(course_id=course)
     students = [student_course.student_id for student_course in student_courses]
@@ -1133,3 +1006,83 @@ def department_report(request, department_id):
     }
 
     return render(request, 'rapid/department.html', context)
+
+"""def upload_students(request):
+    # Get the logged-in HoD's department
+    teacher = Teacher.objects.get(user_id=request.user)
+    department = teacher.department_id
+
+    if request.method == 'POST' and request.FILES['csv_file']:
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = form.cleaned_data['csv_file']
+            decoded_file = csv_file.read().decode('utf-8').splitlines()
+            reader = csv.DictReader(decoded_file)
+
+            for row in reader:
+                programme_name = row.get('programme_name')  # Programme name from CSV
+                student_name = clean_name(row.get('name'))  # Clean and validate the student name
+                university_register_number = row.get('university_register_number')
+                admission_number = row.get('admission_number')
+
+                # Check for existing students by unique fields
+                if Student.objects.filter(university_register_number=university_register_number).exists():
+                    messages.warning(
+                        request,
+                        f"Student with University Register Number '{university_register_number}' already exists. Skipping student '{student_name}'."
+                    )
+                    continue
+
+                if Student.objects.filter(admission_number=admission_number).exists():
+                    messages.warning(
+                        request,
+                        f"Student with Admission Number '{admission_number}' already exists. Skipping student '{student_name}'."
+                    )
+                    continue
+
+                # Verify if the programme exists in the HoD's department
+                try:
+                    programme = Program.objects.get(name=programme_name, department=department)
+                except Program.DoesNotExist:
+                    messages.error(
+                        request,
+                        f"Programme '{programme_name}' not found in your department. Skipping student '{student_name}'."
+                    )
+                    continue
+
+                # Create the student if all validations pass
+                Student.objects.create(
+                    name=student_name,
+                    university_register_number=university_register_number,
+                    admission_number=admission_number,
+                    programme=programme
+                )
+
+            messages.success(request, 'Students uploaded successfully!')
+            return redirect('student_list_hod')
+    else:
+        form = CSVUploadForm()
+
+    return render(request, 'rapid/upload_students.html', {'form': form})
+
+def download_student_template(request):
+    # Get the logged-in HoD's department
+    teacher = Teacher.objects.get(user_id=request.user)
+    department = teacher.department_id
+
+    # Create the HTTP response with the appropriate content type for a CSV file
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="student_template.csv"'
+
+    # Write the CSV data
+    writer = csv.writer(response)
+    writer.writerow(['name', 'programme_name', 'university_register_number', 'admission_number'])  # Header
+
+    # Add example rows
+    example_programme = Program.objects.filter(department_id=department).first()
+    if example_programme:
+        writer.writerow(['John Doe', example_programme.program_name, '1234567890', 'ADM001'])
+    else:
+        writer.writerow(['John Doe', 'Example Programme', '1234567890', 'ADM001'])
+
+    return response"""
