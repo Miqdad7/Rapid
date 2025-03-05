@@ -27,9 +27,9 @@ class CourseAdmin(admin.ModelAdmin):
 class StudentAdmin(admin.ModelAdmin):
     list_display = (
         'student_id', 'student_name', 'student_register_number', 'student_admission_number',
-        'student_roll_number','gender','program_id','department_id')
+        'program_id','department_id')
     search_fields = ('student_name', 'student_register_number')
-    list_filter = ('gender','department_id')
+    list_filter = ('department_id')
 
 class ProgramAdmin(admin.ModelAdmin):
     list_display = ('program_id', 'program_name', 'department_id')
