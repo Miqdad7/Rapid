@@ -4,8 +4,8 @@ from . import views
 
 urlpatterns = [
     
-    path('', views.landing, name='landing'),
-    path('login/', views.login_view, name='login'),
+    #path('', views.landing, name='landing'),
+    path('', views.login_view, name='login'),
     path('index', views.index, name='index'),
     path('index-teacher', views.index_teacher, name='index_teacher'),
     path('admin-dashboard/', views.dashboard_view, name='admin_dashboard'),
@@ -81,5 +81,6 @@ urlpatterns = [
     path('department/<int:department_id>/', views.department_report, name='department_report'),
     #path('students/upload/', views.upload_students, name='upload_students'),
     #path('download_student_template/', views.download_student_template, name='download_student_template'),
+    path('upload-students/', views.upload_students, name='upload_students'),
    
 ]

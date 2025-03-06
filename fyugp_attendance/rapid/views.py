@@ -14,6 +14,9 @@ from datetime import datetime
 from django.db import IntegrityError
 from django.core.exceptions import PermissionDenied
 from functools import wraps
+from .decorators import hod_required
+from .decorators import admin_required
+from io import TextIOWrapper
 import csv
 
 def calculate_year(current_date):
@@ -32,9 +35,10 @@ def clean_name(name):
 
     
 # Landing Page
-def landing(request):
-    return render(request, 'rapid/landing.html')
+"""def landing(request):
+    return render(request, 'rapid/landing.html')"""
 @login_required
+@hod_required
 def index(request):
     return render(request, 'rapid/index.html')
 @login_required
@@ -72,7 +76,7 @@ def login_view(request):
 
 def custom_logout(request):
     logout(request)
-    return redirect('/login')
+    return redirect('login')
 
 @login_required
 def dashboard_view(request):
@@ -122,6 +126,7 @@ def hod_dashboard(request):
 
 # View for creating a new course
 @login_required
+@admin_required
 def create_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST)
@@ -135,6 +140,7 @@ def create_course(request):
 
 # View for creating a new student
 @login_required
+@admin_required
 def create_student(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -148,6 +154,7 @@ def create_student(request):
 
 # View for creating a new program
 @login_required
+@admin_required
 def create_program(request):
     if request.method == 'POST':
         form = ProgramForm(request.POST)
@@ -161,6 +168,7 @@ def create_program(request):
 
 # View for creating a new department
 @login_required
+@admin_required
 def create_department(request):
     if request.method == 'POST':
         form = DepartmentForm(request.POST)
@@ -186,6 +194,7 @@ def create_department(request):
 
 # View for creating a new teacher
 @login_required
+@admin_required
 def create_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
@@ -198,6 +207,7 @@ def create_teacher(request):
     return render(request, 'rapid/create_teacher.html', {'form': form})
 
 @login_required
+@admin_required
 def enroll_student(request):
     if request.method == 'POST':
         form = StudentCourseForm(request.POST)
@@ -243,6 +253,7 @@ def assign_teacher(request):
 
 # List view for all courses
 @login_required
+@admin_required
 def course_list(request):
     courses = Course.objects.all()  # Fetch all courses from the database
     return render(request, 'rapid/course_list.html', {'courses': courses})
@@ -250,18 +261,21 @@ def course_list(request):
 
 # List view for all students
 @login_required
+@admin_required
 def student_list(request):
     students = Student.objects.all()  # Fetch all students from the database
     return render(request, 'rapid/student_list.html', {'students': students})
 
 # List view for all programs
 @login_required
+@admin_required
 def program_list(request):
     programs = Program.objects.all()  # Fetch all programs from the database
     return render(request, 'rapid/program_list.html', {'programs': programs})
 
 # List view for all departments
 @login_required
+@admin_required
 def department_list(request):
     departments = Department.objects.all()  # Fetch all departments from the database
     return render(request, 'rapid/department_list.html', {'departments': departments})
@@ -275,11 +289,13 @@ def department_list(request):
 
 # List view for all teachers
 @login_required
+@admin_required
 def teacher_list(request):
     teachers = Teacher.objects.all()  # Fetch all teachers from the database
     return render(request, 'rapid/teacher_list.html', {'teachers': teachers})
 
 @login_required
+@admin_required
 def enroll_student_list(request):
     enrollments = StudentCourse.objects.select_related('student_id', 'course_id').all()
     return render(request, 'rapid/enroll_student_list.html', {'enrollments': enrollments})
@@ -315,6 +331,7 @@ def user_list(request):
 #editting tables
 
 @login_required
+@admin_required
 def edit_course(request, pk):
     course = get_object_or_404(Course, pk=pk)
     if request.method == "POST":
@@ -329,6 +346,7 @@ def edit_course(request, pk):
     return render(request, 'rapid/edit_course.html', {'form': form})
 
 @login_required
+@admin_required
 def edit_teacher(request, pk):
     # Retrieve the teacher object by its ID
     teacher = get_object_or_404(Teacher, pk=pk)
@@ -346,6 +364,7 @@ def edit_teacher(request, pk):
     return render(request, 'rapid/edit_teacher.html', {'form': form})
 
 @login_required
+@admin_required
 def edit_program(request, pk):
     program = get_object_or_404(Program, pk=pk)
     if request.method == "POST":
@@ -360,6 +379,7 @@ def edit_program(request, pk):
     return render(request, 'rapid/edit_program.html', {'form': form})
 
 @login_required
+@admin_required
 def edit_student(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == "POST":
@@ -374,6 +394,7 @@ def edit_student(request, pk):
     return render(request, 'rapid/edit_student.html', {'form': form})
 
 @login_required
+@admin_required
 def edit_department(request, pk):
     department = get_object_or_404(Department, pk=pk)
     if request.method == "POST":
@@ -388,6 +409,7 @@ def edit_department(request, pk):
     return render(request, 'rapid/edit_department.html', {'form': form})
 
 @login_required
+@admin_required
 def edit_studentCourse(request, pk):
     studentCourse = get_object_or_404(StudentCourse, pk=pk)
     if request.method == "POST":
@@ -440,12 +462,14 @@ def edit_teacherCourse(request, pk):
 
 #deleting tables
 @login_required
+@admin_required
 def delete_course(request, course_id):
     course = get_object_or_404(Course, pk=course_id)
     course.delete()
     return redirect('course_list')
 
 @login_required
+@admin_required
 def delete_teacher(request, teacher_id):
     # Get the teacher object by its ID
     teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
@@ -461,24 +485,28 @@ def delete_teacher(request, teacher_id):
     #return render(request, 'delete_teacher.html', {'teacher': teacher})
     
 @login_required
+@admin_required
 def delete_program(request, program_id):
     program = get_object_or_404(Program, pk=program_id)
     program.delete()
     return redirect('program_list')
 
 @login_required
+@admin_required
 def delete_student(request, student_id):
     student = get_object_or_404(Student, pk=student_id)
     student.delete()
     return redirect('student_list')
 
 @login_required
+@admin_required
 def delete_department(request, department_id):
     department = get_object_or_404(Department, pk=department_id)
     department.delete()
     return redirect('department_list')
 
 @login_required
+@admin_required
 def delete_studentCourse(request, id):
     studentCourse = get_object_or_404(StudentCourse, pk=id)
     studentCourse.delete()
@@ -505,7 +533,9 @@ def course_students_teacher(request, course_id):
     student_course_list = StudentCourse.objects.filter(course_id=course_id)
     return render(request, 'rapid/course_students_teacher.html', {'student_course_list': student_course_list,'course': course})
 
+
 @login_required
+@hod_required
 def student_list_hod(request):
     # Get the logged-in teacher's department
     teacher = Teacher.objects.get(user_id=request.user)
@@ -517,6 +547,7 @@ def student_list_hod(request):
     return render(request, 'rapid/student_list_hod.html', {'students': students, 'department':department})
 
 @login_required
+@hod_required
 def add_student(request):
     if request.method == 'POST':
         form = StudentForm(request.POST)
@@ -529,6 +560,7 @@ def add_student(request):
     return render(request, 'rapid/add_student.html', {'form': form})
 
 @login_required
+@hod_required
 def edit_student_hod(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == "POST":
@@ -543,6 +575,7 @@ def edit_student_hod(request, pk):
     return render(request, 'rapid/edit_student_hod.html', {'form': form})
 
 @login_required
+@hod_required
 def teacher_list_hod(request):
     # Get the logged-in teacher's department
     teacher = Teacher.objects.get(user_id=request.user)
@@ -554,6 +587,7 @@ def teacher_list_hod(request):
     return render(request, 'rapid/teacher_list_hod.html', {'teachers': teachers, 'department':department})
 
 @login_required
+@hod_required
 def add_teacher(request):
     if request.method == 'POST':
         form = TeacherForm(request.POST)
@@ -566,6 +600,7 @@ def add_teacher(request):
     return render(request, 'rapid/add_teacher.html', {'form': form})
 
 @login_required
+@hod_required
 def edit_teacher_hod(request, pk):
     # Retrieve the teacher object by its ID
     teacher = get_object_or_404(Teacher, pk=pk)
@@ -633,6 +668,7 @@ def course_list_teacher(request):
     })
 
 @login_required
+@hod_required
 def add_course(request):
     if request.method == 'POST':
         form = CourseForm(request.POST)
@@ -854,6 +890,7 @@ def attendance_report(request, course_id):
     return render(request, 'rapid/report.html', context)
 
 @login_required
+@hod_required
 def student_individual_report(request, student_id):
     # Fetch the student and their enrolled courses
     student = Student.objects.get(student_id=student_id)
@@ -938,6 +975,7 @@ def student_individual_report(request, student_id):
     return render(request, 'rapid/student_report.html', context)
 
 @login_required
+@hod_required
 def department_report(request, department_id):
     # Fetch the department
     department = Department.objects.get(department_id=department_id)
@@ -1007,82 +1045,52 @@ def department_report(request, department_id):
 
     return render(request, 'rapid/department.html', context)
 
-"""def upload_students(request):
-    # Get the logged-in HoD's department
-    teacher = Teacher.objects.get(user_id=request.user)
-    department = teacher.department_id
-
-    if request.method == 'POST' and request.FILES['csv_file']:
+def upload_students(request):
+    if request.method == "POST":
         form = CSVUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            csv_file = form.cleaned_data['csv_file']
-            decoded_file = csv_file.read().decode('utf-8').splitlines()
-            reader = csv.DictReader(decoded_file)
+            csv_file = request.FILES['csv_file']
+            if not csv_file.name.endswith('.csv'):
+                messages.error(request, "Only CSV files are allowed.")
+                return redirect('upload_students')
+            try:
+                decoded_file = TextIOWrapper(csv_file.file, encoding='utf-8')
+                reader = csv.DictReader(decoded_file)  # Use DictReader for column-based reading
+                count = 0
+                for row in reader:
+                    # Extract only necessary fields
+                    student_name = row.get('student_name', '').strip()
+                    student_register_number = row.get('student_register_number', '').strip()
+                    student_admission_number = row.get('student_admission_number', '').strip()
+                    
+                    program_name = row.get('program_name', '').strip()
+                    department_name = row.get('department_name', '').strip()
+                    
 
-            for row in reader:
-                programme_name = row.get('programme_name')  # Programme name from CSV
-                student_name = clean_name(row.get('name'))  # Clean and validate the student name
-                university_register_number = row.get('university_register_number')
-                admission_number = row.get('admission_number')
+                    # Check for missing required values
+                    if not student_name or not student_register_number:
+                        messages.warning(request, f"Skipping entry with missing name or register number: {row}")
+                        continue
 
-                # Check for existing students by unique fields
-                if Student.objects.filter(university_register_number=university_register_number).exists():
-                    messages.warning(
-                        request,
-                        f"Student with University Register Number '{university_register_number}' already exists. Skipping student '{student_name}'."
+                    # Fetch or create foreign key references
+                    program, _ = Program.objects.get_or_create(program_name=program_name)
+                    department, _ = Department.objects.get_or_create(department_name=department_name)
+
+                    # Create the student object
+                    Student.objects.create(
+                        student_name=student_name,
+                        student_register_number=student_register_number,
+                        student_admission_number=student_admission_number,
+                        
+                        program_id=program,
+                        department_id=department,
+                        
                     )
-                    continue
-
-                if Student.objects.filter(admission_number=admission_number).exists():
-                    messages.warning(
-                        request,
-                        f"Student with Admission Number '{admission_number}' already exists. Skipping student '{student_name}'."
-                    )
-                    continue
-
-                # Verify if the programme exists in the HoD's department
-                try:
-                    programme = Program.objects.get(name=programme_name, department=department)
-                except Program.DoesNotExist:
-                    messages.error(
-                        request,
-                        f"Programme '{programme_name}' not found in your department. Skipping student '{student_name}'."
-                    )
-                    continue
-
-                # Create the student if all validations pass
-                Student.objects.create(
-                    name=student_name,
-                    university_register_number=university_register_number,
-                    admission_number=admission_number,
-                    programme=programme
-                )
-
-            messages.success(request, 'Students uploaded successfully!')
-            return redirect('student_list_hod')
+                    count += 1
+                messages.success(request, f"Successfully imported {count} students.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+            return redirect('upload_students')
     else:
         form = CSVUploadForm()
-
     return render(request, 'rapid/upload_students.html', {'form': form})
-
-def download_student_template(request):
-    # Get the logged-in HoD's department
-    teacher = Teacher.objects.get(user_id=request.user)
-    department = teacher.department_id
-
-    # Create the HTTP response with the appropriate content type for a CSV file
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="student_template.csv"'
-
-    # Write the CSV data
-    writer = csv.writer(response)
-    writer.writerow(['name', 'programme_name', 'university_register_number', 'admission_number'])  # Header
-
-    # Add example rows
-    example_programme = Program.objects.filter(department_id=department).first()
-    if example_programme:
-        writer.writerow(['John Doe', example_programme.program_name, '1234567890', 'ADM001'])
-    else:
-        writer.writerow(['John Doe', 'Example Programme', '1234567890', 'ADM001'])
-
-    return response"""

@@ -44,13 +44,13 @@ class ProgramForm(forms.ModelForm):
 class StudentForm(forms.ModelForm):
     class Meta:
         model = Student
-        fields = ['student_name', 'student_register_number', 'student_admission_number', 'student_roll_number',
-                   'gender','program_id','department_id']
-        widgets = {
-            #'dob': forms.DateInput(attrs={'type': 'date'}),
+        fields = ['student_name', 'student_register_number', 'student_admission_number',
+                   'program_id','department_id']
+        """widgets = {
+            'dob': forms.DateInput(attrs={'type': 'date'}),
             'gender': forms.Select(choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')]),
             
-        }
+        }"""
 
 # Form for Role model
 """class RoleForm(forms.ModelForm):
@@ -194,7 +194,6 @@ class AbsentDetailsForm(forms.ModelForm):
             'student': forms.Select(attrs={'placeholder': 'Select student'}),
             'status': forms.Select(choices=[(False, 'Absent'), (True, 'Present')]),
         }
-
 
 class CSVUploadForm(forms.Form):
     csv_file = forms.FileField()
