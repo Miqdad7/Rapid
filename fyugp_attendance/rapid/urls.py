@@ -82,5 +82,9 @@ urlpatterns = [
     #path('students/upload/', views.upload_students, name='upload_students'),
     #path('download_student_template/', views.download_student_template, name='download_student_template'),
     path('upload-students/', views.upload_students, name='upload_students'),
+    path('upload-teachers/', views.upload_teachers_csv, name='upload_teachers_csv'),
+    path('upload-courses/', views.upload_courses, name='upload_courses'),
+    path("enroll-students-hod/", views.enroll_students_hod, name="enroll_students_hod"),
+    path('enrolled-students-hod/', views.enrolled_students_list_hod, name='enrolled_students_list_hod'),
    
 ]

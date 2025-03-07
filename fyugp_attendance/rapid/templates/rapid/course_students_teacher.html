@@ -17,7 +17,7 @@
                     <thead class="table-dark">
                         <tr>
                             <th><i class="fas fa-user"></i> Student Name</th>
-                            <th><i class="fas fa-id-card"></i> Roll Number</th>
+                            
                             <th><i class="fas fa-clipboard-list"></i> Register Number</th>
                             <th><i class="fas fa-graduation-cap"></i> Program</th>
                         </tr>
@@ -26,7 +26,7 @@
                         {% for enrollment in student_course_list %}
                             <tr>
                                 <td>{{ enrollment.student_id.student_name }}</td>
-                                <td>{{ enrollment.student_id.student_roll_number }}</td>
+                                
                                 <td>{{ enrollment.student_id.student_register_number }}</td>
                                 <td>{{ enrollment.student_id.program_id.program_name }}</td>
                             </tr>
