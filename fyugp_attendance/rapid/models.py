@@ -86,7 +86,7 @@ class Teacher(models.Model):
     department_id = models.ForeignKey(Department, on_delete=models.CASCADE)
     phone = models.CharField(max_length=15, unique=True)
     email = models.EmailField(unique=True)
-    gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
+    #gender = models.CharField(max_length=10, choices=[('Male', 'Male'), ('Female', 'Female'), ('Other', 'Other')])
     is_hod = models.BooleanField(default=False)  # New field to mark HODs
 
     def __str__(self):
@@ -174,3 +174,4 @@ class AbsentDetails(models.Model):
 
     def __str__(self):
         return f"{self.student.student_name} - {self.hour_date_course} - {'Present' if self.status else 'Absent'}"
+    

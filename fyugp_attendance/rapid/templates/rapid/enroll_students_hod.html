@@ -1,0 +1,122 @@
+{% extends 'hod_dashboard_base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h4>Enroll Students into Courses</h4>
+        </div>
+        <div class="card-body">
+
+            <form method="post">
+                {% csrf_token %}
+                
+                <!-- Student Selection -->
+                <div class="mb-3">
+                    <label for="student" class="form-label">Select Student:</label>
+                    <select class="form-select" name="student_id" required>
+                        <option value="" disabled selected>Choose a student</option>
+                        {% for student in students %}
+                        <option value="{{ student.student_id }}">{{ student.student_name }} ({{ student.student_register_number }})</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Search Bar for Courses -->
+                <div class="mb-3">
+                    <label for="course-search" class="form-label">Search Course:</label>
+                    <input type="text" class="form-control" id="course-search" placeholder="Type to search courses..." autocomplete="off">
+                </div>
+
+                <!-- Course Selection (Multi-Select) -->
+                <div class="mb-3">
+                    <label for="course-list" class="form-label">Select Courses:</label>
+                    <select class="form-select" id="course-list" multiple>
+                        {% for course in courses %}
+                        <option value="{{ course.course_id }}" data-course="{{ course.course_title }} {{ course.course_code }}">
+                            {{ course.course_title }} ({{ course.course_code }})
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Display Selected Courses -->
+                <div class="mb-3">
+                    <label class="form-label">Selected Courses:</label>
+                    <ul id="selected-courses" class="list-group"></ul>
+                </div>
+
+                <!-- Hidden Input to Store Selected Courses -->
+                <input type="hidden" name="selected_courses" id="selected-courses-input">
+
+                <button type="submit" class="btn btn-success w-100">Enroll Student</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript for Filtering & Multi-Selection -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("course-search");
+        const courseList = document.getElementById("course-list");
+        const selectedCoursesList = document.getElementById("selected-courses");
+        const selectedCoursesInput = document.getElementById("selected-courses-input");
+        const form = document.querySelector("form");
+
+        let selectedCourses = [];
+
+        // Filter courses based on search input
+        searchInput.addEventListener("input", function () {
+            let filter = this.value.toLowerCase();
+            let options = courseList.options;
+            
+            for (let i = 0; i < options.length; i++) {
+                let courseText = options[i].getAttribute("data-course").toLowerCase();
+                options[i].style.display = courseText.includes(filter) ? "" : "none";
+            }
+        });
+
+        // Handle course selection
+        courseList.addEventListener("change", function () {
+            selectedCourses = Array.from(courseList.selectedOptions).map(option => ({
+                id: option.value,
+                text: option.textContent
+            }));
+
+            updateSelectedCoursesDisplay();
+        });
+
+        // Update the displayed selected courses
+        function updateSelectedCoursesDisplay() {
+            selectedCoursesList.innerHTML = "";
+
+            selectedCourses.forEach(course => {
+                let listItem = document.createElement("li");
+                listItem.classList.add("list-group-item", "d-flex", "justify-content-between", "align-items-center");
+                listItem.textContent = course.text;
+
+                let removeButton = document.createElement("button");
+                removeButton.classList.add("btn", "btn-danger", "btn-sm");
+                removeButton.textContent = "Remove";
+                removeButton.onclick = function () {
+                    selectedCourses = selectedCourses.filter(c => c.id !== course.id);
+                    updateSelectedCoursesDisplay();
+                };
+
+                listItem.appendChild(removeButton);
+                selectedCoursesList.appendChild(listItem);
+            });
+
+            // Store selected courses in hidden input before submitting the form
+            selectedCoursesInput.value = selectedCourses.map(c => c.id).join(",");
+        }
+
+        // Ensure hidden input is updated before form submission
+        form.addEventListener("submit", function () {
+            selectedCoursesInput.value = selectedCourses.map(c => c.id).join(",");
+        });
+    });
+</script>
+
+{% endblock %}

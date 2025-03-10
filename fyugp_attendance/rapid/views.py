@@ -16,7 +16,10 @@ from django.core.exceptions import PermissionDenied
 from functools import wraps
 from .decorators import hod_required
 from .decorators import admin_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from io import TextIOWrapper
+import io
 import csv
 
 def calculate_year(current_date):
@@ -77,6 +80,49 @@ def login_view(request):
 def custom_logout(request):
     logout(request)
     return redirect('login')
+
+def reset_password(request, teacher_id):
+    try:
+        # Get the Teacher instance by ID
+        teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+        
+        # Reset the password for the corresponding User
+        user = teacher.user_id  # Access the related user (one-to-one relationship)
+        user.set_password("12345678")
+        user.save()
+        
+        # Display success message
+        messages.success(request, f"Password for teacher {teacher.user_id.username} has been reset.")
+        
+    except Teacher.DoesNotExist:
+        # Handle the case if the teacher doesn't exist
+        messages.error(request, "Teacher not found.")
+    
+    # Redirect back to the admin page or any page you prefer
+    return HttpResponseRedirect(reverse('teacher_list_hod'))  # Change to your admin page URL
+
+@login_required
+def change_password(request, teacher_id):
+    teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+    user = teacher.user_id  # Access the associated user object
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Keep the user logged in after password change
+            messages.success(request, 'Your password has been successfully updated!')
+
+            # Redirect based on role (HOD or normal teacher)
+            if teacher.is_hod:
+                return redirect('index')  # Redirect to HOD dashboard
+            else:
+                return redirect('index_teacher')  # Redirect to Teacher dashboard
+    else:
+        form = PasswordChangeForm(user)
+    
+
+    return render(request, 'rapid/change_password.html', {'form': form, 'teacher': teacher})
 
 @login_required
 def dashboard_view(request):
@@ -1045,6 +1091,7 @@ def department_report(request, department_id):
 
     return render(request, 'rapid/department.html', context)
 
+@login_required
 def upload_students(request):
     if request.method == "POST":
         form = CSVUploadForm(request.POST, request.FILES)
@@ -1094,3 +1141,188 @@ def upload_students(request):
     else:
         form = CSVUploadForm()
     return render(request, 'rapid/upload_students.html', {'form': form})
+
+@login_required
+def upload_teachers_csv(request):
+    if request.method == "POST":
+        csv_file = request.FILES.get("csv_file")
+
+        if not csv_file.name.endswith('.csv'):
+            messages.error(request, "This is not a CSV file.")
+            return redirect("upload_teachers_csv")
+
+        # Read CSV file
+        data_set = csv_file.read().decode('utf-8')
+        io_string = io.StringIO(data_set)
+        csv_reader = csv.reader(io_string, delimiter=',')
+
+        next(csv_reader, None)  # Skip header row if present
+
+        for row in csv_reader:
+            if len(row) < 5:
+                messages.error(request, f"Skipping row {row}: Missing required fields.")
+                continue
+            
+            teacher_name, email, phone, department_name, is_hod = row[:6]
+
+            # Validate department
+            try:
+                department = Department.objects.get(department_name=department_name)
+            except Department.DoesNotExist:
+                messages.error(request, f"Skipping {teacher_name}: Invalid department name '{department_name}'.")
+                continue
+
+            # Convert is_hod to Boolean
+            is_hod = is_hod.strip().lower() in ['true', '1', 'yes']
+
+            # Create user if not exists
+            user, created = User.objects.get_or_create(username=email, email=email)
+            if created:
+                user.set_password("defaultpassword")  # Set a default password
+                user.save()
+
+            # Create or update teacher
+            teacher, created = Teacher.objects.get_or_create(
+                user_id=user,
+                defaults={
+                    'teacher_name': teacher_name,
+                    'email': email,
+                    'phone': phone,
+                
+                    'department_id': department,
+                    'is_hod': is_hod,
+                }
+            )
+
+            if not created:
+                # Update existing teacher details
+                teacher.teacher_name = teacher_name
+                teacher.email = email
+                teacher.phone = phone
+                
+                teacher.department_id = department
+                teacher.is_hod = is_hod
+                teacher.save()
+                messages.warning(request, f"Updated {teacher_name}.")
+            else:
+                messages.success(request, f"Added {teacher_name} successfully.")
+
+        return redirect("upload_teachers_csv")
+
+    return render(request, "rapid/upload_teachers.html")
+
+@login_required
+def upload_courses(request):
+    if request.method == "POST":
+        form = CSVUploadForm(request.POST, request.FILES)
+        if form.is_valid():
+            csv_file = request.FILES['csv_file']
+            if not csv_file.name.endswith('.csv'):
+                messages.error(request, "Only CSV files are allowed.")
+                return redirect('upload_courses')
+            try:
+                decoded_file = TextIOWrapper(csv_file.file, encoding='utf-8')
+                reader = csv.DictReader(decoded_file)
+                count = 0
+                for row in reader:
+                    course_code = row.get('course_code', '').strip()
+                    course_title = row.get('course_title', '').strip()
+                    credit = row.get('credit', '').strip()
+                    department_name = row.get('department_name', '').strip()
+                    semester = row.get('semester', '').strip()
+                    
+                    if not course_code or not course_title or not department_name or not semester:
+                        messages.warning(request, f"Skipping entry with missing required fields: {row}")
+                        continue
+                    
+                    try:
+                        credit = float(credit)  # Ensure credit is a valid decimal number
+                    except ValueError:
+                        messages.warning(request, f"Skipping entry with invalid credit value: {row}")
+                        continue
+                    
+                    department, _ = Department.objects.get_or_create(department_name=department_name)
+                    
+                    Course.objects.create(
+                        course_code=course_code,
+                        course_title=course_title,
+                        credit=credit,
+                        department_id=department,
+                        semester=semester,
+                    )
+                    count += 1
+                messages.success(request, f"Successfully imported {count} courses.")
+            except Exception as e:
+                messages.error(request, f"Error: {str(e)}")
+            return redirect('upload_courses')
+    else:
+        form = CSVUploadForm()
+    return render(request, 'rapid/upload_courses.html', {'form': form})
+
+@login_required
+@hod_required
+def enroll_students_hod(request):
+    # Get the logged-in user
+    hod = request.user
+
+    # Ensure the user is an HOD
+    try:
+        hod_teacher = Teacher.objects.get(user_id=hod, is_hod=True)
+    except Teacher.DoesNotExist:
+        messages.error(request, "You are not authorized to enroll students.")
+        return redirect("hod_dashboard")
+
+    if request.method == "POST":
+        student_id = request.POST.get("student_id")
+        selected_courses = request.POST.get("selected_courses", "").split(",")
+
+        if not student_id or not selected_courses:
+            messages.error(request, "Please select a student and at least one course.")
+            return redirect("enroll_students_hod")
+
+        try:
+            student = Student.objects.get(student_id=student_id, department_id=hod_teacher.department_id)
+
+            # Remove existing enrollments for this student (if needed)
+            StudentCourse.objects.filter(student_id=student).delete()
+
+            # Enroll the student in selected courses
+            for course_id in selected_courses:
+                if course_id:  # Avoid empty values
+                    course = Course.objects.get(course_id=course_id)
+                    StudentCourse.objects.create(student_id=student, course_id=course)
+
+            messages.success(request, "Student successfully enrolled in selected courses.")
+        except Student.DoesNotExist:
+            messages.error(request, "Invalid student selected.")
+        except Course.DoesNotExist:
+            messages.error(request, "One or more selected courses are invalid.")
+
+        return redirect("enroll_students_hod")
+
+    # HOD can only see students from their own department
+    students = Student.objects.filter(department_id=hod_teacher.department_id)
+
+    # HOD can enroll students into any department's courses
+    courses = Course.objects.all()
+
+    return render(request, "rapid/enroll_students_hod.html", {"students": students, "courses": courses})
+
+   
+
+@login_required
+@hod_required
+def enrolled_students_list_hod(request):
+    if request.user.teacher.is_hod:  # Ensure only HODs can access
+        hod_department_id = request.user.teacher.department_id.department_id  # Get HOD's department ID
+
+        # Filter enrollments to show only students from the HOD's department
+        enrolled_students = StudentCourse.objects.select_related('student_id', 'course_id').filter(
+            student_id__department_id=hod_department_id  # Use department ID
+        )
+
+        return render(request, 'rapid/enrolled_students_hod.html', {'enrolled_students': enrolled_students})
+    
+    else:
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('hod_dashboard')

@@ -44,7 +44,7 @@ class DepartmentAdmin(admin.ModelAdmin):
     search_fields = ('program_level_name',)"""
     
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ('teacher_id', 'teacher_name', 'user', 'department_id', 'phone', 'email', 'gender')
+    list_display = ('teacher_id', 'teacher_name', 'user', 'department_id', 'phone', 'email')
     search_fields = ('teacher_name', 'email', 'phone')
     list_filter = ('department', 'is_hod')
     

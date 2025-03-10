@@ -22,6 +22,7 @@
                
                 <li><a href="{% url 'course_list_teacher' %}" class="sidebar-link"><i class="fas fa-book"></i><span>Courses</span></a></li>
                 <li><a href="{% url 'teacher_attendance_list' %}" class="sidebar-link"><i class="fas fa-calendar-check"></i><span>Attendance Taken</span></a></li>
+                <li><a href="{% url 'change_password' request.user.teacher.teacher_id %}" class="sidebar-link"><i class="fas fa-key"></i><span>Change Password</span></a></li>
                 <!-- Logout Button Inside Sidebar Content -->
                 <li>
                     <a href="{% url 'logout' %}" class="sidebar-link logout-btn">

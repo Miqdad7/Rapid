@@ -112,7 +112,7 @@ class TeacherForm(forms.ModelForm):
 
     class Meta:
         model = Teacher
-        fields = ['teacher_id', 'teacher_name', 'department_id', 'phone', 'email', 'gender', 'is_hod']
+        fields = ['teacher_id', 'teacher_name', 'department_id', 'phone', 'email', 'is_hod']
 
     def save(self, commit=True):
         teacher = super().save(commit=False)
@@ -121,9 +121,9 @@ class TeacherForm(forms.ModelForm):
             if teacher.user_id:  # Keep the existing user
                 user = teacher.user_id
             else:  # Create a new user if missing
-                user = User(username=self.cleaned_data['teacher_name'], email=self.cleaned_data['email'])
+                user = User(username=self.cleaned_data['email'], email=self.cleaned_data['email'])
         else:  # Creating a new teacher
-            user = User(username=self.cleaned_data['teacher_name'], email=self.cleaned_data['email'])
+            user = User(username=self.cleaned_data['email'], email=self.cleaned_data['email'])
 
         if self.cleaned_data['password']:  # Update password only if provided
             user.set_password(self.cleaned_data['password'])
