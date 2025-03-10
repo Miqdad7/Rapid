@@ -86,5 +86,9 @@ urlpatterns = [
     path('upload-courses/', views.upload_courses, name='upload_courses'),
     path("enroll-students-hod/", views.enroll_students_hod, name="enroll_students_hod"),
     path('enrolled-students-hod/', views.enrolled_students_list_hod, name='enrolled_students_list_hod'),
+    
+    
+    path('teachers/change_password/<int:teacher_id>/', views.change_password, name='change_password'),
+    path('reset_password/<int:teacher_id>/', views.reset_password, name='reset_password'),
    
 ]

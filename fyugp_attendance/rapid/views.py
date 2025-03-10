@@ -16,6 +16,8 @@ from django.core.exceptions import PermissionDenied
 from functools import wraps
 from .decorators import hod_required
 from .decorators import admin_required
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib.auth import update_session_auth_hash
 from io import TextIOWrapper
 import io
 import csv
@@ -78,6 +80,49 @@ def login_view(request):
 def custom_logout(request):
     logout(request)
     return redirect('login')
+
+def reset_password(request, teacher_id):
+    try:
+        # Get the Teacher instance by ID
+        teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+        
+        # Reset the password for the corresponding User
+        user = teacher.user_id  # Access the related user (one-to-one relationship)
+        user.set_password("12345678")
+        user.save()
+        
+        # Display success message
+        messages.success(request, f"Password for teacher {teacher.user_id.username} has been reset.")
+        
+    except Teacher.DoesNotExist:
+        # Handle the case if the teacher doesn't exist
+        messages.error(request, "Teacher not found.")
+    
+    # Redirect back to the admin page or any page you prefer
+    return HttpResponseRedirect(reverse('teacher_list_hod'))  # Change to your admin page URL
+
+@login_required
+def change_password(request, teacher_id):
+    teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+    user = teacher.user_id  # Access the associated user object
+
+    if request.method == 'POST':
+        form = PasswordChangeForm(user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # Keep the user logged in after password change
+            messages.success(request, 'Your password has been successfully updated!')
+
+            # Redirect based on role (HOD or normal teacher)
+            if teacher.is_hod:
+                return redirect('index')  # Redirect to HOD dashboard
+            else:
+                return redirect('index_teacher')  # Redirect to Teacher dashboard
+    else:
+        form = PasswordChangeForm(user)
+    
+
+    return render(request, 'rapid/change_password.html', {'form': form, 'teacher': teacher})
 
 @login_required
 def dashboard_view(request):
