@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render, redirect,HttpResponse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect,JsonResponse
 from django.urls import reverse
 from .forms import CourseForm, StudentForm, ProgramForm, DepartmentForm, TeacherForm, StudentCourseForm, TeacherCourseForm, HourDateCourseForm, AbsentDetailsForm, CSVUploadForm
 from .models import Course, Student, Program, Department, Teacher, StudentCourse, TeacherCourse, HourDateCourse, AbsentDetails
@@ -19,6 +19,8 @@ from .decorators import admin_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from io import TextIOWrapper
+from django.db import transaction
+
 import io
 import csv
 
@@ -302,7 +304,8 @@ def assign_teacher(request):
 @admin_required
 def course_list(request):
     courses = Course.objects.all()  # Fetch all courses from the database
-    return render(request, 'rapid/course_list.html', {'courses': courses})
+    departments = Department.objects.all()  # Fetch all departments
+    return render(request, 'rapid/course_list.html', {'courses': courses,"departments": departments})
 
 
 # List view for all students
@@ -310,7 +313,8 @@ def course_list(request):
 @admin_required
 def student_list(request):
     students = Student.objects.all()  # Fetch all students from the database
-    return render(request, 'rapid/student_list.html', {'students': students})
+    departments = Department.objects.all()  # Fetch all departments
+    return render(request, 'rapid/student_list.html', {'students': students,"departments": departments})
 
 # List view for all programs
 @login_required
@@ -1100,10 +1104,12 @@ def upload_students(request):
             if not csv_file.name.endswith('.csv'):
                 messages.error(request, "Only CSV files are allowed.")
                 return redirect('upload_students')
+
             try:
                 decoded_file = TextIOWrapper(csv_file.file, encoding='utf-8')
                 reader = csv.DictReader(decoded_file)  # Use DictReader for column-based reading
                 count = 0
+
                 for row in reader:
                     # Extract only necessary fields
                     student_name = row.get('student_name', '').strip()
@@ -1112,34 +1118,41 @@ def upload_students(request):
                     
                     program_name = row.get('program_name', '').strip()
                     department_name = row.get('department_name', '').strip()
-                    
 
                     # Check for missing required values
-                    if not student_name or not student_register_number:
-                        messages.warning(request, f"Skipping entry with missing name or register number: {row}")
+                    if not student_name or not student_register_number or not student_admission_number:
+                        messages.warning(request, f"Skipping entry with missing required fields: {row}")
                         continue
 
                     # Fetch or create foreign key references
-                    program, _ = Program.objects.get_or_create(program_name=program_name)
                     department, _ = Department.objects.get_or_create(department_name=department_name)
+                    program, _ = Program.objects.get_or_create(program_name=program_name)
+
+                    # Check if student already exists based on admission number
+                    if Student.objects.filter(student_admission_number=student_admission_number).exists():
+                        messages.warning(request, f"Skipping duplicate student with admission number {student_admission_number}")
+                        continue
 
                     # Create the student object
                     Student.objects.create(
                         student_name=student_name,
                         student_register_number=student_register_number,
                         student_admission_number=student_admission_number,
-                        
-                        program_id=program,
-                        department_id=department,
-                        
+                        program_id=program,  # Use the primary key
+                        department_id=department,  # Use the primary key
                     )
                     count += 1
+
                 messages.success(request, f"Successfully imported {count} students.")
+            
             except Exception as e:
                 messages.error(request, f"Error: {str(e)}")
+            
             return redirect('upload_students')
+    
     else:
         form = CSVUploadForm()
+
     return render(request, 'rapid/upload_students.html', {'form': form})
 
 @login_required
@@ -1262,10 +1275,8 @@ def upload_courses(request):
 @login_required
 @hod_required
 def enroll_students_hod(request):
-    # Get the logged-in user
     hod = request.user
 
-    # Ensure the user is an HOD
     try:
         hod_teacher = Teacher.objects.get(user_id=hod, is_hod=True)
     except Teacher.DoesNotExist:
@@ -1283,14 +1294,13 @@ def enroll_students_hod(request):
         try:
             student = Student.objects.get(student_id=student_id, department_id=hod_teacher.department_id)
 
-            # Remove existing enrollments for this student (if needed)
-            StudentCourse.objects.filter(student_id=student).delete()
-
-            # Enroll the student in selected courses
             for course_id in selected_courses:
                 if course_id:  # Avoid empty values
                     course = Course.objects.get(course_id=course_id)
-                    StudentCourse.objects.create(student_id=student, course_id=course)
+
+                    # Check if the student is already enrolled in this course
+                    if not StudentCourse.objects.filter(student_id=student, course_id=course).exists():
+                        StudentCourse.objects.create(student_id=student, course_id=course)
 
             messages.success(request, "Student successfully enrolled in selected courses.")
         except Student.DoesNotExist:
@@ -1300,15 +1310,10 @@ def enroll_students_hod(request):
 
         return redirect("enroll_students_hod")
 
-    # HOD can only see students from their own department
     students = Student.objects.filter(department_id=hod_teacher.department_id)
-
-    # HOD can enroll students into any department's courses
     courses = Course.objects.all()
 
     return render(request, "rapid/enroll_students_hod.html", {"students": students, "courses": courses})
-
-   
 
 @login_required
 @hod_required
@@ -1326,3 +1331,21 @@ def enrolled_students_list_hod(request):
     else:
         messages.error(request, "You do not have permission to access this page.")
         return redirect('hod_dashboard')
+
+@login_required
+@hod_required
+def remove_enrollment_hod(request, enrollment_id):
+    try:
+        enrollment = StudentCourse.objects.get(id=enrollment_id)
+
+        # Ensure the HOD can only remove students from their own department
+        if request.user.teacher.is_hod and enrollment.student_id.department_id == request.user.teacher.department_id:
+            enrollment.delete()
+            messages.success(request, "Enrollment removed successfully.")
+        else:
+            messages.error(request, "You do not have permission to remove this enrollment.")
+
+    except StudentCourse.DoesNotExist:
+        messages.error(request, "Enrollment record not found.")
+
+    return redirect("enrolled_students_list_hod")

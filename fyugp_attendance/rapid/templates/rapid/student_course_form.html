@@ -1,0 +1,207 @@
+{% extends 'hod_dashboard_base.html' %}
+{% load custom_filters %}
+
+{% block title %}Student List{% endblock %}
+
+{% block extra_head %}
+<style>
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    .modal.show {
+        display: flex;
+    }
+    .modal-content {
+        background-color: #fff;
+        padding: 30px;
+        border-radius: 8px;
+        width: 700px;
+        max-height: 70vh;
+        overflow-y: auto;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    .courses-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 10px;
+    }
+    .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    .collapsed {
+        display: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Assign Courses to Students</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Serial No.</th>
+            <th>Register Number</th>
+            <th>Student Name</th>
+            <th>Assigned</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ forloop.counter }}</td>
+            <td>{{ student.student_register_number }}</td>
+            <td>{{ student.student_name }}</td>
+            <td>
+                <ol>
+                    {% for student_course in student_courses_map|get_item:student %}
+                        <li>{{ student_course.course_id.course_code }} - {{ student_course.course_id.course_title }}</li>
+                    {% endfor %}
+                </ol>
+            </td>
+            <td>
+                <button class="btn btn-success btn-sm" onclick="showModal('{{ student.student_id }}')">Assign Courses</button>
+                <button class="btn btn-danger btn-sm" onclick="showRemoveCoursesModal('{{ student.student_id }}')">Remove Courses</button>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<!-- Modal for Assigning Courses -->
+<div id="courseModal" class="modal">
+    <div class="modal-content">
+        <h2>Select Courses</h2>
+        <form method="POST" id="courseForm">
+            {% csrf_token %}
+            <div class="departments-list">
+                {% regroup all_courses by department as department_list %}
+                {% for department in department_list %}
+                    <div class="department-section">
+                        <h3>
+                            <button type="button" class="toggle-dept" data-target="dept_{{ forloop.counter }}">▶ {{ department.grouper.name }}</button>
+                        </h3>
+                        <div id="dept_{{ forloop.counter }}" class="courses-list collapsed">
+                            {% for course in department.list %}
+                                <input type="checkbox" id="course_{{ course.course_id }}" name="courses" value="{{ course.course_id }}">
+                                <label for="course_{{ course.course_id }}">{{ course.course_code }} - {{ course.course_name }}</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <input type="hidden" name="student_id" id="studentId">
+            <div class="modal-actions">
+                <button type="submit">Save</button>
+                <button type="button" onclick="closeModal('courseModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Remove Courses Modal -->
+<div id="removeCoursesModal" class="modal">
+    <div class="modal-content">
+        <h2>Remove Courses</h2>
+        <form method="POST" action="{% url 'remove_courses' %}" id="removeCoursesForm">
+            {% csrf_token %}
+            <div class="courses-list" id="coursesToRemoveList"></div>
+            <input type="hidden" name="student_id" id="removeStudentId">
+            <div class="modal-actions">
+                <button type="submit">Remove</button>
+                <button type="button" onclick="closeModal('removeCoursesModal')">Cancel</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        console.log("Script Loaded!"); // Debugging step
+
+        window.showModal = function (studentId) {
+            console.log("Opening modal for Student ID:", studentId); // Debugging step
+            let modal = document.getElementById('courseModal');
+            if (!modal) {
+                console.error("Modal element not found!");
+                return;
+            }
+            document.getElementById('studentId').value = studentId;
+            modal.classList.add('show');
+        };
+
+        window.closeModal = function (modalId) {
+            let modal = document.getElementById(modalId);
+            if (!modal) {
+                console.error("Modal to close not found!");
+                return;
+            }
+            modal.classList.remove('show');
+        };
+
+        window.showRemoveCoursesModal = function (studentId) {
+            console.log("Opening remove courses modal for Student ID:", studentId); // Debugging step
+            let modal = document.getElementById('removeCoursesModal');
+            if (!modal) {
+                console.error("Remove Courses modal not found!");
+                return;
+            }
+            document.getElementById('removeStudentId').value = studentId;
+
+            fetch(`/get_assigned_courses/${studentId}/`)
+                .then(response => response.json())
+                .then(data => {
+                    let coursesList = document.getElementById('coursesToRemoveList');
+                    if (!coursesList) {
+                        console.error("Courses list container not found!");
+                        return;
+                    }
+                    coursesList.innerHTML = '';
+
+                    if (data.courses.length > 0) {
+                        data.courses.forEach(course => {
+                            let div = document.createElement('div');
+                            div.innerHTML = `
+                                <input type="checkbox" id="remove_course_${course.course_id}" name="courses_to_remove" value="${course.course_id}">
+                                <label for="remove_course_${course.course_id}">${course.course_code} - ${course.course_title}</label>
+                            `;
+                            coursesList.appendChild(div);
+                        });
+                    } else {
+                        coursesList.innerHTML = '<p>No courses assigned to this student.</p>';
+                    }
+                })
+                .catch(error => console.error('Error fetching course data:', error));
+
+            modal.classList.add('show');
+        };
+
+        document.body.addEventListener("click", function (event) {
+            if (event.target.classList.contains("toggle-dept")) {
+                const targetId = event.target.dataset.target;
+                const targetElement = document.getElementById(targetId);
+                if (targetElement) {
+                    targetElement.classList.toggle("collapsed");
+                    event.target.textContent = targetElement.classList.contains("collapsed") 
+                        ? `▶ ${event.target.textContent.slice(2)}` 
+                        : `▼ ${event.target.textContent.slice(2)}`;
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}
