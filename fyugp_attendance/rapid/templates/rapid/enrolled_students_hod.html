@@ -21,6 +21,7 @@
                                 <th>Course Name</th>
                                 <th>Course Code</th>
                                 <th>Department</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,6 +33,11 @@
                                 <td>{{ enrollment.course_id.course_title }}</td>
                                 <td>{{ enrollment.course_id.course_code }}</td>
                                 <td>{{ enrollment.course_id.department_id.department_name }}</td>
+                                <td>
+                                    <a href="{% url 'remove_enrollment_hod' enrollment.id %}" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this enrollment?')">
+                                        Remove Enrollment
+                                    </a>
+                                </td>
                             </tr>
                             {% endfor %}
                         </tbody>
