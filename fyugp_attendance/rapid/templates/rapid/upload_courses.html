@@ -1,18 +1,30 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Upload Courses from CSV</h2>
-  <form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload</button>
-  </form>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Upload Courses from CSV</h2>
+        
+        <form method="post" enctype="multipart/form-data" class="text-center">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                {{ form.as_p }}
+            </div>
 
-  {% if messages %}
-    <ul>
-      {% for message in messages %}
-        <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
-  {% endif %}
+            <button type="submit" class="btn btn-primary">Upload CSV</button>
+            <a href="{% url 'course_list' %}" class="btn btn-secondary ms-2">Back to Courses List</a>
+        </form>
+
+        {% if messages %}
+            <div class="mt-4">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}

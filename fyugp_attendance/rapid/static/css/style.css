@@ -68,14 +68,12 @@ body {
 
 .sidebar-logo {
     margin: auto 0;
-    
 }
 
 .sidebar-logo a {
     color: #FFF;
     font-size: 1.15rem;
     font-weight: 600;
-    
 }
 
 #sidebar:not(.expand) .sidebar-logo,
@@ -251,25 +249,6 @@ textarea.form-control {
 .card:hover {
     transform: scale(1.02);
     box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-}
-.sidebar-footer {
-    margin-top: 20px;
-    padding: 10px;
-    text-align: center;
-}
-
-.logout-btn {
-    background: #e74c3c; 
-    color: white;
-    padding: 10px;
-    border-radius: 5px;
-    text-align: center;
-    display: block;
-    transition: background 0.3s;
-}
-
-.logout-btn:hover {
-    background: #c0392b;
 }
 
 /* 🔹 Responsive Adjustments */
