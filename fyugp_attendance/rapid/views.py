@@ -19,8 +19,6 @@ from .decorators import admin_required
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth import update_session_auth_hash
 from io import TextIOWrapper
-from django.db import transaction
-
 import io
 import csv
 
@@ -38,10 +36,6 @@ def clean_name(name):
     """Standardize the name format: convert to uppercase and replace periods with spaces."""
     return name.strip().replace('.', ' ').upper()
 
-    
-# Landing Page
-"""def landing(request):
-    return render(request, 'rapid/landing.html')"""
 @login_required
 @hod_required
 def index(request):
@@ -228,18 +222,6 @@ def create_department(request):
     
     return render(request, 'rapid/create_department.html', {'form': form})
 
-# View for creating a new program level
-"""def create_program_level(request):
-    if request.method == 'POST':
-        form = ProgramLevelForm(request.POST)
-        if form.is_valid():
-            form.save()  # Save the program level to the database
-            return redirect('program_level_list')  # Redirect to program level list page
-    else:
-        form = ProgramLevelForm()
-    
-    return render(request, 'rapid/create_program_level.html', {'form': form})"""
-
 # View for creating a new teacher
 @login_required
 @admin_required
@@ -330,19 +312,13 @@ def department_list(request):
     departments = Department.objects.all()  # Fetch all departments from the database
     return render(request, 'rapid/department_list.html', {'departments': departments})
 
-
-
-# List view for all program levels
-"""def program_level_list(request):
-    program_levels = ProgramLevel.objects.all()  # Fetch all program levels from the database
-    return render(request, 'rapid/program_level_list.html', {'program_levels': program_levels})"""
-
 # List view for all teachers
 @login_required
 @admin_required
 def teacher_list(request):
     teachers = Teacher.objects.all()  # Fetch all teachers from the database
-    return render(request, 'rapid/teacher_list.html', {'teachers': teachers})
+    departments = Department.objects.all()  # Fetch all departments
+    return render(request, 'rapid/teacher_list.html', {'teachers': teachers,"departments": departments})
 
 @login_required
 @admin_required
@@ -368,15 +344,6 @@ def assign_teacher_list(request):
     ).select_related('teacher_id', 'course_id')
 
     return render(request, 'rapid/assign_teacher_list.html', {'assigns': assigns, 'department': department})
-# List view for all roles
-"""def role_list(request):
-    roles = Role.objects.all()  # Fetch all roles from the database
-    return render(request, 'rapid/role_list.html', {'roles': roles})
-
-# List view for all users
-def user_list(request):
-    users = User.objects.all()  # Fetch all users from the database
-    return render(request, 'rapid/user_list.html', {'users': users})"""
 
 #editting tables
 
@@ -1096,6 +1063,7 @@ def department_report(request, department_id):
     return render(request, 'rapid/department.html', context)
 
 @login_required
+@admin_required
 def upload_students(request):
     if request.method == "POST":
         form = CSVUploadForm(request.POST, request.FILES)
@@ -1156,6 +1124,7 @@ def upload_students(request):
     return render(request, 'rapid/upload_students.html', {'form': form})
 
 @login_required
+@admin_required
 def upload_teachers_csv(request):
     if request.method == "POST":
         csv_file = request.FILES.get("csv_file")
@@ -1225,6 +1194,7 @@ def upload_teachers_csv(request):
     return render(request, "rapid/upload_teachers.html")
 
 @login_required
+@admin_required
 def upload_courses(request):
     if request.method == "POST":
         form = CSVUploadForm(request.POST, request.FILES)
@@ -1349,3 +1319,27 @@ def remove_enrollment_hod(request, enrollment_id):
         messages.error(request, "Enrollment record not found.")
 
     return redirect("enrolled_students_list_hod")
+
+
+
+
+
+
+
+
+
+# View for creating a new program level
+"""def create_program_level(request):
+    if request.method == 'POST':
+        form = ProgramLevelForm(request.POST)
+        if form.is_valid():
+            form.save()  # Save the program level to the database
+            return redirect('program_level_list')  # Redirect to program level list page
+    else:
+        form = ProgramLevelForm()
+    
+    return render(request, 'rapid/create_program_level.html', {'form': form})"""
+    
+"""def program_level_list(request):
+    program_levels = ProgramLevel.objects.all()  # Fetch all program levels from the database
+    return render(request, 'rapid/program_level_list.html', {'program_levels': program_levels})"""

@@ -1,19 +1,33 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h2>Upload Teachers from CSV</h2>
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <label for="csv_file">Upload CSV File:</label>
-    <input type="file" name="csv_file" required>
-    <button type="submit">Upload</button>
-</form>
+<div class="container mt-5">
+    <div class="card shadow-lg p-4">
+        <h2 class="text-center mb-4">Upload Teachers from CSV</h2>
 
-{% if messages %}
-    <ul>
-        {% for message in messages %}
-            <li>{{ message }}</li>
-        {% endfor %}
-    </ul>
-{% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-3">
+                <label for="csv_file" class="form-label fw-bold">Select CSV File:</label>
+                <input type="file" name="csv_file" id="csv_file" class="form-control" accept=".csv" required>
+            </div>
+
+            <div class="text-center">
+                <button type="submit" class="btn btn-primary">Upload CSV</button>
+                <a href="{% url 'teacher_list' %}" class="btn btn-secondary ms-2">Back to Teachers List</a>
+            </div>
+        </form>
+
+        {% if messages %}
+            <div class="mt-4">
+                {% for message in messages %}
+                    <div class="alert {% if message.tags == 'success' %}alert-success{% elif message.tags == 'error' %}alert-danger{% elif message.tags == 'warning' %}alert-warning{% else %}alert-info{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+</div>
 {% endblock %}
