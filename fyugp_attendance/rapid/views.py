@@ -593,6 +593,13 @@ def edit_student_hod(request, pk):
 
 @login_required
 @hod_required
+def delete_student_hod(request, student_id):
+    student = get_object_or_404(Student, pk=student_id)
+    student.delete()
+    return redirect('student_list_hod')
+
+@login_required
+@hod_required
 def teacher_list_hod(request):
     # Get the logged-in teacher's department
     teacher = Teacher.objects.get(user_id=request.user)
@@ -633,6 +640,20 @@ def edit_teacher_hod(request, pk):
         form = TeacherForm(instance=teacher)
 
     return render(request, 'rapid/edit_teacher_hod.html', {'form': form})
+
+@login_required
+@hod_required
+def delete_teacher_hod(request, teacher_id):
+    # Get the teacher object by its ID
+    teacher = get_object_or_404(Teacher, teacher_id=teacher_id)
+
+    #if request.method == 'POST':
+        # Delete the teacher
+    teacher.user_id.delete()  # Delete the related user (optional)
+    teacher.delete()  # Delete the teacher
+
+    messages.success(request, "Teacher deleted successfully.")
+    return redirect('teacher_list_hod')  # Redirect to the teacher list
 
 @login_required
 def course_list_hod(request):
