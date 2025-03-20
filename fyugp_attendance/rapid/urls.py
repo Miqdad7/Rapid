@@ -47,7 +47,8 @@ urlpatterns = [
     path('delete-department/<int:department_id>/', views.delete_department, name='delete_department'),
     path('delete-studentCourse/<int:id>/', views.delete_studentCourse, name='delete_studentCourse'),
     path('delete-teacherCourse/<int:id>/', views.delete_teacherCourse, name='delete_teacherCourse'),
-    
+    path('delete-student-hod/<int:student_id>/', views.delete_student_hod, name='delete_student_hod'),
+    path('delete-teacher-hod/<int:teacher_id>/', views.delete_teacher_hod, name='delete_teacher_hod'),
     
     path('enrollments-list/', views.enroll_student_list, name='enroll_student_list'),
     path('add-enrollments/', views.enroll_student, name='enroll_student'),
@@ -73,6 +74,8 @@ urlpatterns = [
     path('course-list-hod', views.course_list_hod, name='course_list_hod'),
     path('course-list-teacher', views.course_list_teacher, name='course_list_teacher'),
     path('add-course/', views.add_course, name='add_course'),
+    
+    
     path('attendance/report/<int:course_id>/', views.attendance_report, name='attendance_report'),
     path('teacher/attendance/', views.teacher_attendance_list, name='teacher_attendance_list'),
     path('teacher/attendance/edit/<int:record_id>/', views.edit_attendance, name='edit_attendance'),
