@@ -4,9 +4,10 @@ from . import views
 
 urlpatterns = [
     
-    path('', views.landing, name='landing'),
-    path('login/', views.login_view, name='login'),
-    path('signup/', views.signup_view, name='signup'),
+    #path('', views.landing, name='landing'),
+    path('', views.login_view, name='login'),
+    path('index', views.index, name='index'),
+    path('index-teacher', views.index_teacher, name='index_teacher'),
     path('admin-dashboard/', views.dashboard_view, name='admin_dashboard'),
     path('user-dashboard/', views.dashboard_view, name='user_dashboard'),
 
@@ -46,7 +47,8 @@ urlpatterns = [
     path('delete-department/<int:department_id>/', views.delete_department, name='delete_department'),
     path('delete-studentCourse/<int:id>/', views.delete_studentCourse, name='delete_studentCourse'),
     path('delete-teacherCourse/<int:id>/', views.delete_teacherCourse, name='delete_teacherCourse'),
-    
+    path('delete-student-hod/<int:student_id>/', views.delete_student_hod, name='delete_student_hod'),
+    path('delete-teacher-hod/<int:teacher_id>/', views.delete_teacher_hod, name='delete_teacher_hod'),
     
     path('enrollments-list/', views.enroll_student_list, name='enroll_student_list'),
     path('add-enrollments/', views.enroll_student, name='enroll_student'),
@@ -55,4 +57,41 @@ urlpatterns = [
     
     
     path('logout/', views.custom_logout, name='logout'),
+    
+    path('course-students/<int:course_id>/', views.course_students, name='course_students'),
+    path('course-students-teacher/<int:course_id>/', views.course_students_teacher, name='course_students_teacher'),
+    
+    path('hod-dashboard/', views.hod_dashboard, name='hod_dashboard'),
+
+    path('course/<int:course_id>/take-attendance/', views.take_attendance, name='take_attendance'),
+    
+    path('students-list-hod/', views.student_list_hod, name='student_list_hod'),
+    path('students-add/', views.add_student, name='add_student'),
+    path('edit-student-hod/<int:pk>/', views.edit_student_hod, name='edit_student_hod'),
+    path('teacher-list-hod/', views.teacher_list_hod, name='teacher_list_hod'),
+    path('add-teacher/', views.add_teacher, name='add_teacher'),
+    path('edit-teacher-hod/<int:pk>/', views.edit_teacher_hod, name='edit_teacher_hod'),
+    path('course-list-hod', views.course_list_hod, name='course_list_hod'),
+    path('course-list-teacher', views.course_list_teacher, name='course_list_teacher'),
+    path('add-course/', views.add_course, name='add_course'),
+    
+    
+    path('attendance/report/<int:course_id>/', views.attendance_report, name='attendance_report'),
+    path('teacher/attendance/', views.teacher_attendance_list, name='teacher_attendance_list'),
+    path('teacher/attendance/edit/<int:record_id>/', views.edit_attendance, name='edit_attendance'),
+    path('teacher/attendance/remove/<int:record_id>/', views.remove_attendance, name='remove_attendance'),
+    path('student-individual-report/<int:student_id>/', views.student_individual_report, name='student_individual_report'),
+    path('department/<int:department_id>/', views.department_report, name='department_report'),
+    #path('students/upload/', views.upload_students, name='upload_students'),
+    #path('download_student_template/', views.download_student_template, name='download_student_template'),
+    path('upload-students/', views.upload_students, name='upload_students'),
+    path('upload-teachers/', views.upload_teachers_csv, name='upload_teachers_csv'),
+    path('upload-courses/', views.upload_courses, name='upload_courses'),
+    path("enroll-students-hod/", views.enroll_students_hod, name="enroll_students_hod"),
+    path('enrolled-students-hod/', views.enrolled_students_list_hod, name='enrolled_students_list_hod'),
+    path('remove-enrollment/<int:enrollment_id>/', views.remove_enrollment_hod, name='remove_enrollment_hod'),
+     
+    path('teachers/change_password/<int:teacher_id>/', views.change_password, name='change_password'),
+    path('reset_password/<int:teacher_id>/', views.reset_password, name='reset_password'),
+   
 ]

@@ -1,0 +1,33 @@
+{% extends "hod_dashboard_base.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Create Teacher{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">Add New Student</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-save"></i> Save student
+                            </button>
+                            <a href="{% url 'student_list_hod' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Students List
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

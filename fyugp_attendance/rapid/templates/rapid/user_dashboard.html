@@ -1,12 +1,45 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-</head>
-<body>
-    <h1>Welcome {{ user.username }}</h1>
-    <p>You are logged in as a regular user.</p>
-</body>
-</html>
+{% extends 'dashboard_base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block sidebar_title %}Teacher Dashboard{% endblock %}
+{% block sidebar_links %}
+    <li onclick="showSection('assigned-courses')"><i class="fas fa-book"></i> <a href="#">Assigned Courses</a></li>
+{% endblock %}
+{% block content %}
+    <h1>Welcome, {{ request.user.username }}</h1>
+
+    <section id="assigned-courses" class="section active">
+        <h2>Assigned Courses</h2>
+        {% if assigned_courses %}
+            <table>
+                <tr>
+                    <th>Course</th>
+                    <th>Code</th>
+                    <th>Take Attendance</th>
+                    <th>Reports</th>
+                </tr>
+                {% for course in assigned_courses %}
+                <tr>
+                    <td>
+                        <a href="{% url 'course_students' course.course_id_id %}">
+                            {{ course.course_id.course_title }}
+                        </a>
+                    </td>
+                    <td>{{ course.course_id.course_code }}</td>
+                    <td>
+                        <a href="{% url 'take_attendance' course.course_id_id %}" class="attendance-button">
+                            Take Attendance
+                        </a>
+                    </td>
+                    <td>
+                        <div class="mb-3">
+                          <a href="{% url 'attendance_report' course.course_id_id %}" class="btn btn-success">Summary Report</a>
+                        </div>            
+                      </td>
+                </tr>
+                {% endfor %}
+            </table>
+        {% else %}
+            <p>You are not assigned to any courses at the moment.</p>
+        {% endif %}
+    </section>
+{% endblock %}

@@ -1,0 +1,52 @@
+{% extends 'dashboard_base.html' %}
+
+{% block title %}My Attendance Records{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="text-primary">📌 My Attendance Records</h2>
+    </div>
+
+    <div class="card shadow-lg">
+        <div class="card-body">
+            {% if attendance_records %}
+                <div class="table-responsive">
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark text-center">
+                            <tr>
+                                <th>📚 Course</th>
+                                <th>📅 Date</th>
+                                <th>⏳ Hour</th>
+                                <th>⚙️ Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in attendance_records %}
+                                <tr class="text-center">
+                                    <td class="fw-bold">{{ record.course.course_title }}</td>
+                                    <td>{{ record.date|date:"M d, Y" }}</td>
+                                    <td>Hour {{ record.hour }}</td>
+                                    <td>
+                                        <a href="{% url 'edit_attendance' record.id %}" class="btn btn-warning btn-sm">
+                                            ✏️ Edit
+                                        </a>
+                                        <a href="{% url 'remove_attendance' record.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to remove this record?')">
+                                            🗑️ Remove
+                                        </a>
+                                        
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info text-center" role="alert">
+                    🚨 No attendance records found.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
